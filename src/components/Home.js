@@ -5,122 +5,209 @@ function Home() {
   const { state, dispatch } = useApp();
 
   const activeLoans = state.loans.filter(loan => loan.status === 'active');
+  const overdueLoans = activeLoans.filter(loan => 
+    new Date(loan.expectedReturnDate) < new Date()
+  );
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '30px' }}>
+    <div className="main-container fade-in-up">
+      <h1 className="main-title">
         🔧 Controle de Ferramentas
       </h1>
       
-      <div style={{ marginBottom: '30px' }}>
-        <h2 style={{ color: '#555' }}>Ferramentas em Uso ({activeLoans.length})</h2>
+      {/* Cards de Estatísticas */}
+      <div className="stats-grid">
+        <div className="stat-card" onClick={() => dispatch({ type: 'SET_VIEW', payload: 'admin' })}>
+          <div className="stat-number">{state.collaborators.length}</div>
+          <div className="stat-label">👥 Colaboradores</div>
+          <div className="stat-hint">Clique para gerenciar</div>
+        </div>
+        
+        <div className="stat-card" onClick={() => dispatch({ type: 'SET_VIEW', payload: 'admin' })}>
+          <div className="stat-number">{state.tools.length}</div>
+          <div className="stat-label">🔧 Ferramentas</div>
+          <div className="stat-hint">Clique para gerenciar</div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-number">{activeLoans.length}</div>
+          <div className="stat-label">📋 Empréstimos Ativos</div>
+          <div className="stat-hint">Em uso no momento</div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-number" style={{ color: overdueLoans.length > 0 ? '#e53e3e' : '#48bb78' }}>
+            {overdueLoans.length}
+          </div>
+          <div className="stat-label">⚠️ Atrasados</div>
+          <div className="stat-hint">{overdueLoans.length === 0 ? 'Tudo em dia!' : 'Necessita atenção'}</div>
+        </div>
+      </div>
+
+      {/* Ferramentas em Uso */}
+      <div className="professional-card">
+        <h2 className="section-title">Ferramentas em Uso</h2>
+        
         {activeLoans.length === 0 ? (
-          <p style={{ 
-            padding: '20px', 
-            backgroundColor: '#f8f9fa', 
-            border: '1px solid #dee2e6', 
-            borderRadius: '5px',
-            textAlign: 'center'
-          }}>
-            Nenhuma ferramenta em uso no momento.
-          </p>
+          <div className="empty-state">
+            <div className="empty-state-icon">🔧</div>
+            <div className="empty-state-title">Nenhuma ferramenta em uso</div>
+            <div className="empty-state-description">
+              Todas as ferramentas estão disponíveis para empréstimo
+            </div>
+          </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white' }}>
+            <table className="professional-table">
               <thead>
-                <tr style={{ backgroundColor: '#007bff', color: 'white' }}>
-                  <th style={{ border: '1px solid #ddd', padding: '12px' }}>Colaborador</th>
-                  <th style={{ border: '1px solid #ddd', padding: '12px' }}>Ferramenta(s)</th>
-                  <th style={{ border: '1px solid #ddd', padding: '12px' }}>Data Empréstimo</th>
-                  <th style={{ border: '1px solid #ddd', padding: '12px' }}>Data Prevista</th>
+                <tr>
+                  <th>Colaborador</th>
+                  <th>Ferramenta(s)</th>
+                  <th>Data Empréstimo</th>
+                  <th>Data Prevista</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {activeLoans.map(loan => (
-                  <tr key={loan.id}>
-                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>{loan.collaboratorName}</td>
-                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>{loan.toolNames.join(', ')}</td>
-                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>
-                      {new Date(loan.loanDate).toLocaleDateString('pt-BR')}
-                    </td>
-                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>
-                      {new Date(loan.expectedReturnDate).toLocaleDateString('pt-BR')}
-                    </td>
-                  </tr>
-                ))}
+                {activeLoans.map(loan => {
+                  const isOverdue = new Date(loan.expectedReturnDate) < new Date();
+                  return (
+                    <tr key={loan.id}>
+                      <td style={{ fontWeight: '600' }}>{loan.collaboratorName}</td>
+                      <td>{loan.toolNames.join(', ')}</td>
+                      <td>{new Date(loan.loanDate).toLocaleDateString('pt-BR')}</td>
+                      <td style={{ color: isOverdue ? '#e53e3e' : '#4a5568' }}>
+                        {new Date(loan.expectedReturnDate).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td>
+                        <span className={`status-badge ${isOverdue ? 'status-borrowed' : 'status-active'}`}>
+                          {isOverdue ? '🔴 Atrasado' : '🟢 No Prazo'}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
 
-      <div style={{ marginBottom: '30px' }}>
-        <button 
-          style={{ 
-            marginRight: '15px', 
-            padding: '15px 30px', 
-            fontSize: '18px',
-            backgroundColor: '#28a745',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-          onClick={() => dispatch({ type: 'SET_VIEW', payload: 'loan-tool' })}
-        >
-          📋 Iniciar Novo Empréstimo
-        </button>
-        <button 
-          style={{ 
-            padding: '15px 30px', 
-            fontSize: '18px',
-            backgroundColor: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-          onClick={() => dispatch({ type: 'SET_VIEW', payload: 'admin' })}
-        >
-          ⚙️ Painel Administrativo
-        </button>
+      {/* Ações Principais */}
+      <div className="professional-card">
+        <h2 className="section-title">Ações Principais</h2>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+          gap: '20px',
+          marginBottom: '30px'
+        }}>
+          <button 
+            className="btn-primary"
+            onClick={() => dispatch({ type: 'SET_VIEW', payload: 'loan-tool' })}
+            style={{ 
+              padding: '20px',
+              fontSize: '1.1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '10px',
+              minHeight: '120px'
+            }}
+          >
+            <span style={{ fontSize: '2rem' }}>📋</span>
+            <span>Novo Empréstimo</span>
+            <small style={{ opacity: 0.8, fontSize: '0.9rem' }}>
+              Registrar empréstimo de ferramentas
+            </small>
+          </button>
+          
+          <button 
+            className="btn-secondary"
+            onClick={() => dispatch({ type: 'SET_VIEW', payload: 'admin' })}
+            style={{ 
+              padding: '20px',
+              fontSize: '1.1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '10px',
+              minHeight: '120px'
+            }}
+          >
+            <span style={{ fontSize: '2rem' }}>⚙️</span>
+            <span>Painel Administrativo</span>
+            <small style={{ opacity: 0.8, fontSize: '0.9rem' }}>
+              Gerenciar todo o sistema
+            </small>
+          </button>
+        </div>
       </div>
 
-      <div style={{ 
-        backgroundColor: '#f8f9fa', 
-        padding: '20px', 
-        borderRadius: '5px',
-        border: '1px solid #dee2e6'
-      }}>
-        <h3 style={{ marginTop: '0', color: '#555' }}>Cadastros Rápidos</h3>
-        <button 
-          style={{ 
-            marginRight: '15px', 
-            padding: '10px 20px',
-            backgroundColor: '#17a2b8',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-          onClick={() => dispatch({ type: 'SET_VIEW', payload: 'register-collaborator' })}
-        >
-          👤 Cadastrar Colaborador
-        </button>
-        <button 
-          style={{ 
-            padding: '10px 20px',
-            backgroundColor: '#ffc107',
-            color: '#212529',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-          onClick={() => dispatch({ type: 'SET_VIEW', payload: 'register-tool' })}
-        >
-          🔧 Cadastrar Ferramenta
-        </button>
+      {/* Cadastros Rápidos */}
+      <div className="professional-card">
+        <h2 className="section-title">Cadastros Rápidos</h2>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+          gap: '15px'
+        }}>
+          <button 
+            className="btn-success"
+            onClick={() => dispatch({ type: 'SET_VIEW', payload: 'register-collaborator' })}
+            style={{ 
+              padding: '15px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
+          >
+            <span style={{ fontSize: '1.2rem' }}>👤</span>
+            <span>Novo Colaborador</span>
+          </button>
+          
+          <button 
+            className="btn-success"
+            onClick={() => dispatch({ type: 'SET_VIEW', payload: 'register-tool' })}
+            style={{ 
+              padding: '15px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
+          >
+            <span style={{ fontSize: '1.2rem' }}>🔧</span>
+            <span>Nova Ferramenta</span>
+          </button>
+        </div>
       </div>
+
+      {/* Alertas e Notificações */}
+      {overdueLoans.length > 0 && (
+        <div className="professional-card" style={{ 
+          background: 'rgba(245, 101, 101, 0.1)', 
+          border: '2px solid rgba(245, 101, 101, 0.2)' 
+        }}>
+          <h2 className="section-title" style={{ color: '#c53030' }}>
+            ⚠️ Atenção: Empréstimos Atrasados
+          </h2>
+          <p style={{ color: '#c53030', marginBottom: '15px' }}>
+            Existem {overdueLoans.length} empréstimo(s) com devolução em atraso:
+          </p>
+          <ul style={{ color: '#c53030', paddingLeft: '20px' }}>
+            {overdueLoans.map(loan => (
+              <li key={loan.id} style={{ marginBottom: '5px' }}>
+                <strong>{loan.collaboratorName}</strong> - {loan.toolNames.join(', ')} 
+                (venceu em {new Date(loan.expectedReturnDate).toLocaleDateString('pt-BR')})
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
