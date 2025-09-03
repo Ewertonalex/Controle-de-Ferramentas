@@ -5,6 +5,7 @@ import RegisterCollaborator from './components/RegisterCollaborator';
 import RegisterTool from './components/RegisterTool';
 import LoanTool from './components/LoanTool';
 import AdminPanel from './components/AdminPanel';
+import InstallPrompt from './components/InstallPrompt';
 import './App.css';
 
 function AppContent() {
@@ -28,6 +29,7 @@ function AppContent() {
   return (
     <div className="App">
       {renderCurrentView()}
+      <InstallPrompt />
     </div>
   );
 }
