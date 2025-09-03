@@ -16,10 +16,10 @@ function AppContent() {
         return <RegisterCollaborator />;
       case 'register-tool':
         return <RegisterTool />;
-      case 'loan-tool':
+      case 'loan':
         return <LoanTool />;
       case 'admin':
-        return <AdminPanel />;
+        return state.isAdminAuthenticated ? <AdminPanel /> : <Home />;
       default:
         return <Home />;
     }

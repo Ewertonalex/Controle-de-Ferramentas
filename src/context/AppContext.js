@@ -12,6 +12,7 @@ import {
   subscribeToTools,
   subscribeToLoans
 } from '../services/database';
+import Modal from '../components/Modal';
 
 const AppContext = createContext();
 
@@ -21,7 +22,15 @@ const initialState = {
   tools: [],
   loans: [],
   loading: false,
-  error: null
+  error: null,
+  isAdminAuthenticated: false,
+  modal: {
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: null
+  }
 };
 
 function appReducer(state, action) {
@@ -70,6 +79,36 @@ function appReducer(state, action) {
             ? { ...loan, status: 'returned', returnDate: new Date().toISOString() }
             : loan
         )
+      };
+    
+    case 'SET_ADMIN_AUTH':
+      return {
+        ...state,
+        isAdminAuthenticated: action.payload
+      };
+    
+    case 'SHOW_MODAL':
+      return {
+        ...state,
+        modal: {
+          isOpen: true,
+          title: action.payload.title,
+          message: action.payload.message,
+          type: action.payload.type || 'info',
+          onConfirm: action.payload.onConfirm || null
+        }
+      };
+    
+    case 'HIDE_MODAL':
+      return {
+        ...state,
+        modal: {
+          isOpen: false,
+          title: '',
+          message: '',
+          type: 'info',
+          onConfirm: null
+        }
       };
     
     default:
@@ -209,6 +248,29 @@ export function AppProvider({ children }) {
         dispatch({ type: 'SET_ERROR', payload: 'Erro ao devolver ferramenta' });
         throw error;
       }
+    },
+
+    authenticateAdmin(username, password) {
+      if (username === 'admin' && password === '123456') {
+        dispatch({ type: 'SET_ADMIN_AUTH', payload: true });
+        return true;
+      }
+      return false;
+    },
+
+    logoutAdmin() {
+      dispatch({ type: 'SET_ADMIN_AUTH', payload: false });
+    },
+
+    showModal(title, message, type = 'info', onConfirm = null) {
+      dispatch({ 
+        type: 'SHOW_MODAL', 
+        payload: { title, message, type, onConfirm } 
+      });
+    },
+
+    hideModal() {
+      dispatch({ type: 'HIDE_MODAL' });
     }
   };
 
@@ -282,6 +344,16 @@ export function AppProvider({ children }) {
           <small style={{ opacity: 0.9 }}>Clique para fechar</small>
         </div>
       )}
+
+      {/* Modal Global */}
+      <Modal
+        isOpen={state.modal.isOpen}
+        onClose={() => dispatch({ type: 'HIDE_MODAL' })}
+        title={state.modal.title}
+        message={state.modal.message}
+        type={state.modal.type}
+        onConfirm={state.modal.onConfirm}
+      />
 
       <style jsx>{`
         @keyframes spin {

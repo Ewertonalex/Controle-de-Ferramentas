@@ -23,17 +23,29 @@ function LoanTool() {
     e.preventDefault();
     
     if (!selectedCollaborator) {
-      alert('⚠️ Por favor, selecione um colaborador');
+      actions.showModal(
+        'Campo Obrigatório',
+        'Por favor, selecione um colaborador antes de continuar.',
+        'warning'
+      );
       return;
     }
     
     if (selectedTools.length === 0) {
-      alert('⚠️ Por favor, selecione pelo menos uma ferramenta');
+      actions.showModal(
+        'Campo Obrigatório', 
+        'Por favor, selecione pelo menos uma ferramenta antes de continuar.',
+        'warning'
+      );
       return;
     }
     
     if (!expectedReturnDate) {
-      alert('⚠️ Por favor, defina a data de devolução esperada');
+      actions.showModal(
+        'Campo Obrigatório',
+        'Por favor, defina a data de devolução esperada antes de continuar.',
+        'warning'
+      );
       return;
     }
 
@@ -43,7 +55,11 @@ function LoanTool() {
       // Validar se o colaborador existe
       const collaborator = state.collaborators.find(c => c.id.toString() === selectedCollaborator.toString());
       if (!collaborator) {
-        alert('❌ Colaborador não encontrado. Tente selecionar novamente.');
+        actions.showModal(
+          'Erro de Validação',
+          'Colaborador não encontrado. Tente selecionar novamente.',
+          'error'
+        );
         setSubmitting(false);
         return;
       }
@@ -51,7 +67,11 @@ function LoanTool() {
       // Validar se todas as ferramentas existem
       const tools = selectedTools.map(toolId => state.tools.find(t => t.id.toString() === toolId.toString())).filter(Boolean);
       if (tools.length !== selectedTools.length) {
-        alert('❌ Algumas ferramentas não foram encontradas. Tente selecionar novamente.');
+        actions.showModal(
+          'Erro de Validação',
+          'Algumas ferramentas não foram encontradas. Tente selecionar novamente.',
+          'error'
+        );
         setSubmitting(false);
         return;
       }
@@ -70,31 +90,19 @@ function LoanTool() {
       setExpectedReturnDate('');
       
       // Feedback visual de sucesso
-      const successMessage = document.createElement('div');
-      successMessage.innerHTML = '✅ Empréstimo registrado com sucesso!';
-      successMessage.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 12px;
-        font-weight: 600;
-        z-index: 1000;
-        box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
-      `;
-      document.body.appendChild(successMessage);
-      
-      setTimeout(() => {
-        if (document.body.contains(successMessage)) {
-          document.body.removeChild(successMessage);
-        }
-      }, 3000);
+      actions.showModal(
+        'Sucesso!',
+        'Empréstimo registrado com sucesso! As ferramentas foram atribuídas ao colaborador.',
+        'success'
+      );
       
     } catch (error) {
       console.error('Erro ao registrar empréstimo:', error);
-      alert('❌ Erro ao registrar empréstimo. Verifique sua conexão com a internet.');
+      actions.showModal(
+        'Erro',
+        'Erro ao registrar empréstimo. Verifique sua conexão com a internet e tente novamente.',
+        'error'
+      );
     } finally {
       setSubmitting(false);
     }

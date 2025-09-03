@@ -60,17 +60,18 @@ function AdminPanel() {
       setEditName('');
       setEditCpf('');
       
-      const successMessage = document.createElement('div');
-      successMessage.innerHTML = '✅ Colaborador atualizado com sucesso!';
-      successMessage.style.cssText = `
-        position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-        color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; z-index: 1000;
-        box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
-      `;
-      document.body.appendChild(successMessage);
-      setTimeout(() => { if (document.body.contains(successMessage)) document.body.removeChild(successMessage); }, 3000);
+      actions.showModal(
+        'Sucesso!',
+        'Colaborador atualizado com sucesso!',
+        'success'
+      );
     } catch (error) {
       console.error('Erro ao atualizar colaborador:', error);
+      actions.showModal(
+        'Erro',
+        'Erro ao atualizar colaborador. Tente novamente.',
+        'error'
+      );
     }
   };
 
@@ -80,27 +81,36 @@ function AdminPanel() {
     );
     
     if (hasActiveLoans) {
-      alert('❌ Não é possível excluir colaborador com empréstimos ativos');
+      actions.showModal(
+        'Operação Não Permitida',
+        'Não é possível excluir colaborador com empréstimos ativos. Primeiro finalize todos os empréstimos deste colaborador.',
+        'warning'
+      );
       return;
     }
     
-    if (window.confirm(`Confirma a exclusão do colaborador "${collaborator.name}"?`)) {
-      try {
-        await actions.deleteCollaborator(collaborator.id);
-        
-        const successMessage = document.createElement('div');
-        successMessage.innerHTML = '✅ Colaborador excluído com sucesso!';
-        successMessage.style.cssText = `
-          position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-          color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; z-index: 1000;
-          box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3);
-        `;
-        document.body.appendChild(successMessage);
-        setTimeout(() => { if (document.body.contains(successMessage)) document.body.removeChild(successMessage); }, 3000);
-      } catch (error) {
-        console.error('Erro ao excluir colaborador:', error);
+    actions.showModal(
+      'Confirmar Exclusão',
+      `Tem certeza que deseja excluir o colaborador "${collaborator.name}"?\n\nEsta ação não pode ser desfeita.`,
+      'confirm',
+      async () => {
+        try {
+          await actions.deleteCollaborator(collaborator.id);
+          actions.showModal(
+            'Sucesso!',
+            'Colaborador excluído com sucesso!',
+            'success'
+          );
+        } catch (error) {
+          console.error('Erro ao excluir colaborador:', error);
+          actions.showModal(
+            'Erro',
+            'Erro ao excluir colaborador. Tente novamente.',
+            'error'
+          );
+        }
       }
-    }
+    );
   };
 
   const handleEditTool = (tool) => {
@@ -116,38 +126,44 @@ function AdminPanel() {
       setEditingTool(null);
       setEditName('');
       
-      const successMessage = document.createElement('div');
-      successMessage.innerHTML = '✅ Ferramenta atualizada com sucesso!';
-      successMessage.style.cssText = `
-        position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-        color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; z-index: 1000;
-        box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
-      `;
-      document.body.appendChild(successMessage);
-      setTimeout(() => { if (document.body.contains(successMessage)) document.body.removeChild(successMessage); }, 3000);
+      actions.showModal(
+        'Sucesso!',
+        'Ferramenta atualizada com sucesso!',
+        'success'
+      );
     } catch (error) {
       console.error('Erro ao atualizar ferramenta:', error);
+      actions.showModal(
+        'Erro',
+        'Erro ao atualizar ferramenta. Tente novamente.',
+        'error'
+      );
     }
   };
 
   const handleDeleteTool = async (tool) => {
-    if (window.confirm(`Confirma a exclusão da ferramenta "${tool.name}"?\n\nAtenção: Isso irá remover a ferramenta permanentemente, mas não afetará empréstimos já registrados.`)) {
-      try {
-        await actions.deleteTool(tool.id);
-        
-        const successMessage = document.createElement('div');
-        successMessage.innerHTML = '✅ Ferramenta excluída com sucesso!';
-        successMessage.style.cssText = `
-          position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-          color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; z-index: 1000;
-          box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3);
-        `;
-        document.body.appendChild(successMessage);
-        setTimeout(() => { if (document.body.contains(successMessage)) document.body.removeChild(successMessage); }, 3000);
-      } catch (error) {
-        console.error('Erro ao excluir ferramenta:', error);
+    actions.showModal(
+      'Confirmar Exclusão',
+      `Tem certeza que deseja excluir a ferramenta "${tool.name}"?\n\nAtenção: Isso irá remover a ferramenta permanentemente, mas não afetará empréstimos já registrados.`,
+      'confirm',
+      async () => {
+        try {
+          await actions.deleteTool(tool.id);
+          actions.showModal(
+            'Sucesso!',
+            'Ferramenta excluída com sucesso!',
+            'success'
+          );
+        } catch (error) {
+          console.error('Erro ao excluir ferramenta:', error);
+          actions.showModal(
+            'Erro',
+            'Erro ao excluir ferramenta. Tente novamente.',
+            'error'
+          );
+        }
       }
-    }
+    );
   };
 
   const formatCPF = (value) => {
@@ -160,9 +176,119 @@ function AdminPanel() {
 
   const activeLoans = state.loans.filter(loan => loan.status === 'active');
   const completedLoans = state.loans.filter(loan => loan.status === 'returned');
+  const overdueLoans = activeLoans.filter(loan => 
+    new Date(loan.expectedReturnDate) < new Date()
+  );
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return (
+          <div className="fade-in-up">
+            <h3 className="subsection-title">📊 Relatório Geral</h3>
+            
+            {/* Cards de Estatísticas */}
+            <div className="stats-grid" style={{ marginBottom: '30px' }}>
+              <div className="stat-card">
+                <div className="stat-number">{state.collaborators.length}</div>
+                <div className="stat-label">👥 Colaboradores</div>
+                <div className="stat-hint">Cadastrados no sistema</div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-number">{state.tools.length}</div>
+                <div className="stat-label">🔧 Ferramentas</div>
+                <div className="stat-hint">Disponíveis para empréstimo</div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-number">{activeLoans.length}</div>
+                <div className="stat-label">📋 Empréstimos Ativos</div>
+                <div className="stat-hint">Em uso no momento</div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-number" style={{ color: overdueLoans.length > 0 ? '#e53e3e' : '#48bb78' }}>
+                  {overdueLoans.length}
+                </div>
+                <div className="stat-label">⚠️ Atrasados</div>
+                <div className="stat-hint">{overdueLoans.length === 0 ? 'Tudo em dia!' : 'Necessita atenção'}</div>
+              </div>
+            </div>
+
+            {/* Alertas de Empréstimos Atrasados */}
+            {overdueLoans.length > 0 && (
+              <div className="professional-card" style={{ 
+                background: 'rgba(245, 101, 101, 0.1)', 
+                border: '2px solid rgba(245, 101, 101, 0.2)',
+                marginBottom: '30px'
+              }}>
+                <h3 className="subsection-title" style={{ color: '#c53030' }}>
+                  ⚠️ Atenção: Empréstimos Atrasados
+                </h3>
+                <p style={{ color: '#c53030', marginBottom: '15px', fontSize: '0.9rem' }}>
+                  Existem {overdueLoans.length} empréstimo(s) com devolução em atraso:
+                </p>
+                <ul style={{ color: '#c53030', paddingLeft: '20px', fontSize: '0.85rem' }}>
+                  {overdueLoans.map(loan => (
+                    <li key={loan.id} style={{ marginBottom: '5px' }}>
+                      <strong>{loan.collaboratorName}</strong> - {loan.toolNames.join(', ')} 
+                      (venceu em {new Date(loan.expectedReturnDate).toLocaleDateString('pt-BR')})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Ferramentas em Uso */}
+            <div className="professional-card">
+              <h3 className="subsection-title">🔧 Ferramentas em Uso Atual</h3>
+              
+              {activeLoans.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">🔧</div>
+                  <div className="empty-state-title">Nenhuma ferramenta em uso</div>
+                  <div className="empty-state-description">
+                    Todas as ferramentas estão disponíveis para empréstimo
+                  </div>
+                </div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table className="professional-table">
+                    <thead>
+                      <tr>
+                        <th>Colaborador</th>
+                        <th>Ferramentas</th>
+                        <th>Devolução</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {activeLoans.map(loan => {
+                        const isOverdue = new Date(loan.expectedReturnDate) < new Date();
+                        return (
+                          <tr key={loan.id}>
+                            <td style={{ fontWeight: '600' }}>{loan.collaboratorName}</td>
+                            <td>{loan.toolNames.join(', ')}</td>
+                            <td style={{ color: isOverdue ? '#e53e3e' : '#4a5568' }}>
+                              {new Date(loan.expectedReturnDate).toLocaleDateString('pt-BR')}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <span className={`status-badge ${isOverdue ? 'status-borrowed' : 'status-active'}`}>
+                                {isOverdue ? '🔴' : '🟢'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
       case 'collaborators':
         return (
           <div className="fade-in-up">
@@ -513,9 +639,21 @@ function AdminPanel() {
 
   return (
     <div className="main-container fade-in-up">
-      <h1 className="main-title">
-        ⚙️ Painel Administrativo
-      </h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1 className="main-title" style={{ margin: 0 }}>
+          ⚙️ Painel Administrativo
+        </h1>
+        <button
+          onClick={() => {
+            actions.logoutAdmin();
+            dispatch({ type: 'SET_VIEW', payload: 'home' });
+          }}
+          className="btn-secondary"
+          style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+        >
+          🚪 Sair
+        </button>
+      </div>
       
       {/* Navegação por Abas */}
       <div className="tab-navigation">
