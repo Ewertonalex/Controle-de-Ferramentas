@@ -665,6 +665,7 @@ function AdminPanel() {
                          <th>Ferramentas</th>
                          <th>Devolução</th>
                          <th>Status</th>
+                         <th>Assinatura</th>
                          <th>Ação</th>
                        </tr>
                      </thead>
@@ -682,6 +683,20 @@ function AdminPanel() {
                                <span className={`status-badge ${isOverdue ? 'status-borrowed' : 'status-active'}`}>
                                  {isOverdue ? '🔴' : '🟢'}
                                </span>
+                             </td>
+                             <td style={{ textAlign: 'center' }}>
+                               {loan.signature ? (
+                                 <button
+                                   onClick={() => window.open(loan.signature, '_blank')}
+                                   className="btn-secondary"
+                                   style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                   title="Ver assinatura digital"
+                                 >
+                                   ✍️
+                                 </button>
+                               ) : (
+                                 <span style={{ color: '#a0aec0', fontSize: '0.7rem' }}>-</span>
+                               )}
                              </td>
                              <td style={{ textAlign: 'center' }}>
                                <button

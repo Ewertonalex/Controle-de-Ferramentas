@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import SignaturePad from './SignaturePad';
 
 function LoanTool() {
   const { state, dispatch, actions } = useApp();
   const [selectedCollaborator, setSelectedCollaborator] = useState('');
   const [selectedTools, setSelectedTools] = useState([]);
   const [expectedReturnDate, setExpectedReturnDate] = useState('');
+  const [signature, setSignature] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   // Todas as ferramentas estão sempre disponíveis (múltiplas unidades)
@@ -48,6 +50,15 @@ function LoanTool() {
       );
       return;
     }
+    
+    if (!signature) {
+      actions.showModal(
+        'Assinatura Obrigatória',
+        'Por favor, assine digitalmente para confirmar o empréstimo.',
+        'warning'
+      );
+      return;
+    }
 
     setSubmitting(true);
 
@@ -86,13 +97,15 @@ function LoanTool() {
           collaboratorName: collaborator.name,
           toolIds: selectedTools,
           toolNames: tools.map(tool => tool.name),
-          expectedReturnDate: correctDate
+          expectedReturnDate: correctDate,
+          signature: signature
         });
       
       // Reset form
       setSelectedCollaborator('');
       setSelectedTools([]);
       setExpectedReturnDate('');
+      setSignature('');
       
       // Feedback visual de sucesso
       actions.showModal(
@@ -239,6 +252,15 @@ function LoanTool() {
             </small>
           </div>
 
+          {/* Assinatura Digital */}
+          {selectedCollaborator && selectedTools.length > 0 && expectedReturnDate && (
+            <SignaturePad
+              onSignatureChange={setSignature}
+              onClear={() => setSignature('')}
+              signatureData={signature}
+            />
+          )}
+
           {/* Preview do Empréstimo */}
           {(selectedCollaboratorData || selectedToolsData.length > 0 || expectedReturnDate) && (
             <div style={{
@@ -267,6 +289,18 @@ function LoanTool() {
                   <strong>📅 Devolução esperada:</strong> {new Date(expectedReturnDate + 'T00:00:00').toLocaleDateString('pt-BR')}
                 </p>
               )}
+              
+              {signature && (
+                <div className="loan-signature-preview">
+                  <h4>✍️ Assinatura Digital:</h4>
+                  <img 
+                    src={signature} 
+                    alt="Assinatura do colaborador" 
+                    className="signature-image"
+                    style={{ maxWidth: '200px', height: 'auto' }}
+                  />
+                </div>
+              )}
             </div>
           )}
           
@@ -277,7 +311,7 @@ function LoanTool() {
              <button 
                type="submit"
                className="btn-primary"
-               disabled={submitting || !selectedCollaborator || selectedTools.length === 0 || !expectedReturnDate}
+               disabled={submitting || !selectedCollaborator || selectedTools.length === 0 || !expectedReturnDate || !signature}
                style={{ 
                  opacity: submitting ? 0.7 : 1,
                  cursor: submitting ? 'not-allowed' : 'pointer'

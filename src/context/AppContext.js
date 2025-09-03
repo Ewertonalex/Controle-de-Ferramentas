@@ -229,7 +229,8 @@ export function AppProvider({ children }) {
           collaboratorName: loan.collaboratorName,
           toolIds: loan.toolIds,
           toolNames: loan.toolNames,
-          expectedReturnDate: loan.expectedReturnDate
+          expectedReturnDate: loan.expectedReturnDate,
+          signature: loan.signature
         });
         dispatch({ type: 'SET_LOADING', payload: false });
         return newLoan;
