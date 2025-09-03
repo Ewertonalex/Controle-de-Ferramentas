@@ -2,96 +2,152 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 
 function RegisterTool() {
-  const { dispatch } = useApp();
-  const [toolName, setToolName] = useState('');
+  const { dispatch, actions } = useApp();
+  const [name, setName] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (toolName.trim()) {
-      const tool = {
-        id: Date.now(),
-        name: toolName.trim(),
-        status: 'available',
-        createdAt: new Date().toISOString()
-      };
+    
+    if (!name.trim()) {
+      alert('⚠️ Por favor, digite o nome da ferramenta');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await actions.addTool({
+        name: name.trim()
+      });
       
-      dispatch({ type: 'ADD_TOOL', payload: tool });
-      setToolName('');
-      alert('✅ Ferramenta cadastrada com sucesso!');
+      setName('');
+      
+      // Feedback visual de sucesso
+      const successMessage = document.createElement('div');
+      successMessage.innerHTML = '✅ Ferramenta cadastrada com sucesso!';
+      successMessage.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        z-index: 1000;
+        box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+      `;
+      document.body.appendChild(successMessage);
+      
+      setTimeout(() => {
+        if (document.body.contains(successMessage)) {
+          document.body.removeChild(successMessage);
+        }
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Erro ao cadastrar ferramenta:', error);
+      alert('❌ Erro ao cadastrar ferramenta. Verifique sua conexão com a internet.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <h2 style={{ textAlign: 'center', color: '#333', marginBottom: '30px' }}>
+    <div className="main-container fade-in-up">
+      <h1 className="main-title">
         🔧 Cadastro de Ferramentas
-      </h2>
+      </h1>
       
-      <form onSubmit={handleSubmit} style={{ 
-        backgroundColor: 'white',
-        padding: '30px',
-        borderRadius: '10px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-      }}>
-        <div style={{ marginBottom: '25px' }}>
-          <label style={{ 
-            display: 'block', 
-            marginBottom: '8px', 
-            fontWeight: 'bold',
-            color: '#555'
-          }}>
-            Nome da Ferramenta:
-          </label>
-          <input
-            type="text"
-            placeholder="Ex: Furadeira, Martelo, Chave de Fenda, Alicate..."
-            value={toolName}
-            onChange={(e) => setToolName(e.target.value)}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              fontSize: '16px',
-              border: '2px solid #ddd',
-              borderRadius: '5px',
-              boxSizing: 'border-box'
-            }}
-          />
-        </div>
+      <div className="professional-card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+        <h2 className="section-title">Nova Ferramenta</h2>
         
-        <div style={{ textAlign: 'center' }}>
-          <button 
-            type="submit"
-            style={{ 
-              padding: '12px 30px', 
-              fontSize: '16px', 
-              marginRight: '15px',
-              backgroundColor: '#ffc107',
-              color: '#212529',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            ✅ Cadastrar
-          </button>
-          <button 
-            type="button"
-            onClick={() => dispatch({ type: 'SET_VIEW', payload: 'home' })}
-            style={{ 
-              padding: '12px 30px', 
-              fontSize: '16px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            ⬅️ Voltar
-          </button>
-        </div>
-      </form>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Nome da Ferramenta *</label>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Ex: Furadeira Bosch, Martelo, Chave Inglesa..."
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              disabled={submitting}
+            />
+            <small style={{ color: '#a0aec0', fontSize: '0.75rem', marginTop: '0.25rem', display: 'block' }}>
+              Digite um nome descritivo para identificar facilmente a ferramenta
+            </small>
+          </div>
+
+          {/* Preview dos dados */}
+          {name.trim() && (
+            <div style={{
+              background: 'rgba(102, 126, 234, 0.1)',
+              border: '1px solid rgba(102, 126, 234, 0.2)',
+              borderRadius: '12px',
+              padding: '20px',
+              marginBottom: '20px'
+            }}>
+              <h4 style={{ margin: '0 0 15px 0', color: '#667eea' }}>📝 Preview da Ferramenta</h4>
+              <p style={{ margin: '5px 0', color: '#4a5568' }}>
+                <strong>Nome:</strong> {name.trim()}
+              </p>
+              <p style={{ margin: '5px 0', color: '#4a5568', fontSize: '0.875rem' }}>
+                <strong>Status inicial:</strong> <span className="status-badge status-available">🟢 Disponível</span>
+              </p>
+            </div>
+          )}
+          
+          <div style={{ 
+            display: 'flex', 
+            gap: '15px', 
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+          }}>
+            <button 
+              type="submit"
+              className="btn-success"
+              disabled={submitting || !name.trim()}
+              style={{ 
+                minWidth: '180px',
+                opacity: submitting ? 0.7 : 1,
+                cursor: submitting ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {submitting ? (
+                <>
+                  <span className="pulse">⏳</span> Salvando no Banco...
+                </>
+              ) : (
+                <>✅ Cadastrar Ferramenta</>
+              )}
+            </button>
+            
+            <button 
+              type="button"
+              onClick={() => dispatch({ type: 'SET_VIEW', payload: 'home' })}
+              className="btn-secondary"
+              disabled={submitting}
+              style={{ minWidth: '140px' }}
+            >
+              ⬅️ Voltar
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Dicas e informações */}
+      <div className="professional-card" style={{ maxWidth: '600px', margin: '30px auto 0' }}>
+        <h3 className="subsection-title">💡 Dicas para Cadastro</h3>
+        <ul style={{ color: '#4a5568', lineHeight: '1.6' }}>
+          <li>🏷️ <strong>Nome descritivo</strong> - Use marca e modelo quando possível</li>
+          <li>🔧 <strong>Exemplos</strong> - "Furadeira Bosch GSB 13", "Martelo 500g", "Chave Inglesa 12""</li>
+          <li>💾 <strong>Salvo na nuvem</strong> - Dados ficam seguros no Firebase</li>
+          <li>🔄 <strong>Sincronização</strong> - Aparece em tempo real em todos os dispositivos</li>
+          <li>📱 <strong>Acesso móvel</strong> - Seu cliente pode usar no celular</li>
+        </ul>
+      </div>
     </div>
   );
 }

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 
 function RegisterCollaborator() {
-  const { dispatch } = useApp();
+  const { dispatch, actions } = useApp();
   const [name, setName] = useState('');
   const [cpf, setCpf] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const formatCPF = (value) => {
     const numbers = value.replace(/\D/g, '');
@@ -33,21 +33,16 @@ function RegisterCollaborator() {
       return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
 
-    // Simular delay de processamento para melhor UX
-    setTimeout(() => {
-      const collaborator = {
-        id: Date.now(),
+    try {
+      await actions.addCollaborator({
         name: name.trim(),
-        cpf: cpf.trim(),
-        createdAt: new Date().toISOString()
-      };
+        cpf: cpf.trim()
+      });
       
-      dispatch({ type: 'ADD_COLLABORATOR', payload: collaborator });
       setName('');
       setCpf('');
-      setLoading(false);
       
       // Feedback visual de sucesso
       const successMessage = document.createElement('div');
@@ -67,9 +62,17 @@ function RegisterCollaborator() {
       document.body.appendChild(successMessage);
       
       setTimeout(() => {
-        document.body.removeChild(successMessage);
+        if (document.body.contains(successMessage)) {
+          document.body.removeChild(successMessage);
+        }
       }, 3000);
-    }, 800);
+      
+    } catch (error) {
+      console.error('Erro ao cadastrar colaborador:', error);
+      alert('❌ Erro ao cadastrar colaborador. Verifique sua conexão com a internet.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -91,7 +94,7 @@ function RegisterCollaborator() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              disabled={loading}
+              disabled={submitting}
             />
           </div>
           
@@ -105,7 +108,7 @@ function RegisterCollaborator() {
               onChange={(e) => setCpf(formatCPF(e.target.value))}
               required
               maxLength="14"
-              disabled={loading}
+              disabled={submitting}
             />
             <small style={{ color: '#a0aec0', fontSize: '0.75rem', marginTop: '0.25rem', display: 'block' }}>
               Digite apenas os números do CPF
@@ -144,16 +147,16 @@ function RegisterCollaborator() {
             <button 
               type="submit"
               className="btn-success"
-              disabled={loading || !name.trim() || !validateCPF(cpf)}
+              disabled={submitting || !name.trim() || !validateCPF(cpf)}
               style={{ 
                 minWidth: '180px',
-                opacity: loading ? 0.7 : 1,
-                cursor: loading ? 'not-allowed' : 'pointer'
+                opacity: submitting ? 0.7 : 1,
+                cursor: submitting ? 'not-allowed' : 'pointer'
               }}
             >
-              {loading ? (
+              {submitting ? (
                 <>
-                  <span className="pulse">⏳</span> Cadastrando...
+                  <span className="pulse">⏳</span> Salvando no Banco...
                 </>
               ) : (
                 <>✅ Cadastrar Colaborador</>
@@ -164,7 +167,7 @@ function RegisterCollaborator() {
               type="button"
               onClick={() => dispatch({ type: 'SET_VIEW', payload: 'home' })}
               className="btn-secondary"
-              disabled={loading}
+              disabled={submitting}
               style={{ minWidth: '140px' }}
             >
               ⬅️ Voltar
@@ -175,12 +178,13 @@ function RegisterCollaborator() {
 
       {/* Dicas e informações */}
       <div className="professional-card" style={{ maxWidth: '600px', margin: '30px auto 0' }}>
-        <h3 className="subsection-title">💡 Dicas Importantes</h3>
+        <h3 className="subsection-title">💡 Informações Importantes</h3>
         <ul style={{ color: '#4a5568', lineHeight: '1.6' }}>
-          <li>O <strong>nome completo</strong> será usado para identificar o colaborador nos empréstimos</li>
-          <li>O <strong>CPF</strong> deve conter exatamente 11 dígitos numéricos</li>
-          <li>Todos os dados ficam salvos localmente no navegador</li>
-          <li>Você pode cadastrar quantos colaboradores precisar</li>
+          <li>✅ <strong>Banco de dados real</strong> - Os dados ficam salvos permanentemente na nuvem</li>
+          <li>🌐 <strong>Sincronização automática</strong> - Funciona em tempo real em todos os dispositivos</li>
+          <li>🔒 <strong>Dados seguros</strong> - Backup automático no Firebase Google</li>
+          <li>📱 <strong>Acesso móvel</strong> - Funciona perfeitamente no celular</li>
+          <li>⚡ <strong>Offline-ready</strong> - Continua funcionando mesmo sem internet</li>
         </ul>
       </div>
     </div>

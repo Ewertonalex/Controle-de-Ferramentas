@@ -1,7 +1,7 @@
 {
   "short_name": "Controle Ferramentas",
-  "name": "Controle de Uso de Ferramentas",
-  "description": "Aplicativo para controle de empréstimo e uso de ferramentas",
+  "name": "Sistema de Controle de Ferramentas PWA",
+  "description": "Sistema profissional para controle de empréstimos de ferramentas com banco de dados em tempo real",
   "icons": [
     {
       "src": "favicon.ico",
@@ -9,20 +9,71 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "icon-192x192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
-      "src": "logo512.png",
+      "src": "icon-512x512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#667eea",
-  "background_color": "#667eea",
   "orientation": "portrait-primary",
-  "categories": ["productivity", "business", "utilities"]
+  "theme_color": "#667eea",
+  "background_color": "#f7fafc",
+  "scope": "/",
+  "lang": "pt-BR",
+  "categories": ["productivity", "business", "utilities"],
+  "screenshots": [
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Sistema de Controle de Ferramentas"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo Empréstimo",
+      "short_name": "Empréstimo",
+      "description": "Registrar novo empréstimo de ferramenta",
+      "url": "/?action=loan",
+      "icons": [{ "src": "icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Painel Admin",
+      "short_name": "Admin",
+      "description": "Acessar painel administrativo",
+      "url": "/?action=admin",
+      "icons": [{ "src": "icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Cadastrar Colaborador",
+      "short_name": "Colaborador",
+      "description": "Cadastrar novo colaborador",
+      "url": "/?action=collaborator",
+      "icons": [{ "src": "icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Cadastrar Ferramenta",
+      "short_name": "Ferramenta",
+      "description": "Cadastrar nova ferramenta",
+      "url": "/?action=tool",
+      "icons": [{ "src": "icon-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
 }

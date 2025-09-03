@@ -2,13 +2,41 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 
 function AdminPanel() {
-  const { state, dispatch } = useApp();
+  const { state, dispatch, actions } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  const handleReturnTool = (loanId) => {
+  const handleReturnTool = async (loanId) => {
     if (window.confirm('Confirmar devolução da ferramenta?')) {
-      dispatch({ type: 'RETURN_TOOL', payload: { loanId } });
-      alert('✅ Ferramenta devolvida com sucesso!');
+      try {
+        await actions.returnTool(loanId);
+        
+        // Feedback visual de sucesso
+        const successMessage = document.createElement('div');
+        successMessage.innerHTML = '✅ Ferramenta devolvida com sucesso!';
+        successMessage.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+          color: white;
+          padding: 15px 20px;
+          border-radius: 12px;
+          font-weight: 600;
+          z-index: 1000;
+          box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        `;
+        document.body.appendChild(successMessage);
+        
+        setTimeout(() => {
+          if (document.body.contains(successMessage)) {
+            document.body.removeChild(successMessage);
+          }
+        }, 3000);
+        
+      } catch (error) {
+        console.error('Erro ao devolver ferramenta:', error);
+        alert('❌ Erro ao devolver ferramenta. Verifique sua conexão.');
+      }
     }
   };
 
