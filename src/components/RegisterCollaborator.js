@@ -81,7 +81,7 @@ function RegisterCollaborator() {
         👤 Cadastro de Colaboradores
       </h1>
       
-      <div className="professional-card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+      <div className="professional-card">
         <h2 className="section-title">Novo Colaborador</h2>
         
         <form onSubmit={handleSubmit}>
@@ -139,27 +139,24 @@ function RegisterCollaborator() {
           )}
           
           <div style={{ 
-            display: 'flex', 
-            gap: '15px', 
-            justifyContent: 'center',
-            flexWrap: 'wrap'
+            display: 'grid', 
+            gap: '8px'
           }}>
             <button 
               type="submit"
               className="btn-success"
               disabled={submitting || !name.trim() || !validateCPF(cpf)}
               style={{ 
-                minWidth: '180px',
                 opacity: submitting ? 0.7 : 1,
                 cursor: submitting ? 'not-allowed' : 'pointer'
               }}
             >
               {submitting ? (
                 <>
-                  <span className="pulse">⏳</span> Salvando no Banco...
+                  <span className="pulse">⏳</span> Salvando...
                 </>
               ) : (
-                <>✅ Cadastrar Colaborador</>
+                <>✅ Cadastrar</>
               )}
             </button>
             
@@ -168,7 +165,6 @@ function RegisterCollaborator() {
               onClick={() => dispatch({ type: 'SET_VIEW', payload: 'home' })}
               className="btn-secondary"
               disabled={submitting}
-              style={{ minWidth: '140px' }}
             >
               ⬅️ Voltar
             </button>
@@ -176,17 +172,7 @@ function RegisterCollaborator() {
         </form>
       </div>
 
-      {/* Dicas e informações */}
-      <div className="professional-card" style={{ maxWidth: '600px', margin: '30px auto 0' }}>
-        <h3 className="subsection-title">💡 Informações Importantes</h3>
-        <ul style={{ color: '#4a5568', lineHeight: '1.6' }}>
-          <li>✅ <strong>Banco de dados real</strong> - Os dados ficam salvos permanentemente na nuvem</li>
-          <li>🌐 <strong>Sincronização automática</strong> - Funciona em tempo real em todos os dispositivos</li>
-          <li>🔒 <strong>Dados seguros</strong> - Backup automático no Firebase Google</li>
-          <li>📱 <strong>Acesso móvel</strong> - Funciona perfeitamente no celular</li>
-          <li>⚡ <strong>Offline-ready</strong> - Continua funcionando mesmo sem internet</li>
-        </ul>
-      </div>
+
     </div>
   );
 }

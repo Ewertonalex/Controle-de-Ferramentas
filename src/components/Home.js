@@ -99,48 +99,40 @@ function Home() {
         
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-          gap: '20px',
-          marginBottom: '30px'
+          gridTemplateColumns: '1fr',
+          gap: '12px',
+          marginBottom: '16px'
         }}>
           <button 
             className="btn-primary"
             onClick={() => dispatch({ type: 'SET_VIEW', payload: 'loan-tool' })}
             style={{ 
-              padding: '20px',
-              fontSize: '1.1rem',
+              padding: '12px',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
-              gap: '10px',
-              minHeight: '120px'
+              justifyContent: 'center',
+              gap: '8px',
+              minHeight: '48px'
             }}
           >
-            <span style={{ fontSize: '2rem' }}>📋</span>
+            <span style={{ fontSize: '1.2rem' }}>📋</span>
             <span>Novo Empréstimo</span>
-            <small style={{ opacity: 0.8, fontSize: '0.9rem' }}>
-              Registrar empréstimo de ferramentas
-            </small>
           </button>
           
           <button 
             className="btn-secondary"
             onClick={() => dispatch({ type: 'SET_VIEW', payload: 'admin' })}
             style={{ 
-              padding: '20px',
-              fontSize: '1.1rem',
+              padding: '12px',
               display: 'flex',
-              flexDirection: 'column',
               alignItems: 'center',
-              gap: '10px',
-              minHeight: '120px'
+              justifyContent: 'center',
+              gap: '8px',
+              minHeight: '48px'
             }}
           >
-            <span style={{ fontSize: '2rem' }}>⚙️</span>
-            <span>Painel Administrativo</span>
-            <small style={{ opacity: 0.8, fontSize: '0.9rem' }}>
-              Gerenciar todo o sistema
-            </small>
+            <span style={{ fontSize: '1.2rem' }}>⚙️</span>
+            <span>Painel Admin</span>
           </button>
         </div>
       </div>
@@ -151,37 +143,41 @@ function Home() {
         
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '15px'
+          gridTemplateColumns: '1fr 1fr', 
+          gap: '8px'
         }}>
           <button 
             className="btn-success"
             onClick={() => dispatch({ type: 'SET_VIEW', payload: 'register-collaborator' })}
             style={{ 
-              padding: '15px 20px',
+              padding: '10px',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '10px'
+              gap: '4px',
+              minHeight: '60px'
             }}
           >
-            <span style={{ fontSize: '1.2rem' }}>👤</span>
-            <span>Novo Colaborador</span>
+            <span style={{ fontSize: '1rem' }}>👤</span>
+            <span style={{ fontSize: '0.75rem' }}>Colaborador</span>
           </button>
           
           <button 
             className="btn-success"
             onClick={() => dispatch({ type: 'SET_VIEW', payload: 'register-tool' })}
             style={{ 
-              padding: '15px 20px',
+              padding: '10px',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '10px'
+              gap: '4px',
+              minHeight: '60px'
             }}
           >
-            <span style={{ fontSize: '1.2rem' }}>🔧</span>
-            <span>Nova Ferramenta</span>
+            <span style={{ fontSize: '1rem' }}>🔧</span>
+            <span style={{ fontSize: '0.75rem' }}>Ferramenta</span>
           </button>
         </div>
       </div>

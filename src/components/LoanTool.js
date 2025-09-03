@@ -99,7 +99,7 @@ function LoanTool() {
         📋 Registro de Empréstimo
       </h1>
       
-      <div className="professional-card" style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div className="professional-card">
         <h2 className="section-title">Novo Empréstimo</h2>
         
         <form onSubmit={handleSubmit}>
@@ -243,66 +243,41 @@ function LoanTool() {
             </div>
           )}
           
-          <div style={{ 
-            display: 'flex', 
-            gap: '15px', 
-            justifyContent: 'center',
-            flexWrap: 'wrap'
-          }}>
-            <button 
-              type="submit"
-              className="btn-primary"
-              disabled={submitting || !selectedCollaborator || selectedTools.length === 0 || !expectedReturnDate}
-              style={{ 
-                minWidth: '200px',
-                opacity: submitting ? 0.7 : 1,
-                cursor: submitting ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {submitting ? (
-                <>
-                  <span className="pulse">⏳</span> Registrando...
-                </>
-              ) : (
-                <>📋 Registrar Empréstimo</>
-              )}
-            </button>
-            
-            <button 
-              type="button"
-              onClick={() => dispatch({ type: 'SET_VIEW', payload: 'home' })}
-              className="btn-secondary"
-              disabled={submitting}
-              style={{ minWidth: '140px' }}
-            >
-              ⬅️ Voltar
-            </button>
-          </div>
+                     <div style={{ 
+             display: 'grid', 
+             gap: '8px'
+           }}>
+             <button 
+               type="submit"
+               className="btn-primary"
+               disabled={submitting || !selectedCollaborator || selectedTools.length === 0 || !expectedReturnDate}
+               style={{ 
+                 opacity: submitting ? 0.7 : 1,
+                 cursor: submitting ? 'not-allowed' : 'pointer'
+               }}
+             >
+               {submitting ? (
+                 <>
+                   <span className="pulse">⏳</span> Registrando...
+                 </>
+               ) : (
+                 <>📋 Registrar</>
+               )}
+             </button>
+             
+             <button 
+               type="button"
+               onClick={() => dispatch({ type: 'SET_VIEW', payload: 'home' })}
+               className="btn-secondary"
+               disabled={submitting}
+             >
+               ⬅️ Voltar
+             </button>
+           </div>
         </form>
       </div>
 
-      {/* Informações sobre empréstimos */}
-      <div className="professional-card" style={{ maxWidth: '800px', margin: '30px auto 0' }}>
-        <h3 className="subsection-title">💡 Informações Importantes</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
-          <div>
-            <h4 style={{ color: '#667eea', marginBottom: '10px' }}>📋 Sobre Empréstimos</h4>
-            <ul style={{ color: '#4a5568', lineHeight: '1.6', fontSize: '0.875rem' }}>
-              <li>Cada empréstimo é registrado com data e hora</li>
-              <li>Ferramentas ficam indisponíveis até a devolução</li>
-              <li>Sistema alerta sobre atrasos automaticamente</li>
-            </ul>
-          </div>
-          <div>
-            <h4 style={{ color: '#48bb78', marginBottom: '10px' }}>🔄 Sincronização</h4>
-            <ul style={{ color: '#4a5568', lineHeight: '1.6', fontSize: '0.875rem' }}>
-              <li>Dados salvos em tempo real na nuvem</li>
-              <li>Visível instantaneamente em todos os dispositivos</li>
-              <li>Backup automático no Firebase</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 }

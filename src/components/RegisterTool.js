@@ -60,7 +60,7 @@ function RegisterTool() {
         🔧 Cadastro de Ferramentas
       </h1>
       
-      <div className="professional-card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+      <div className="professional-card">
         <h2 className="section-title">Nova Ferramenta</h2>
         
         <form onSubmit={handleSubmit}>
@@ -100,27 +100,24 @@ function RegisterTool() {
           )}
           
           <div style={{ 
-            display: 'flex', 
-            gap: '15px', 
-            justifyContent: 'center',
-            flexWrap: 'wrap'
+            display: 'grid', 
+            gap: '8px'
           }}>
             <button 
               type="submit"
               className="btn-success"
               disabled={submitting || !name.trim()}
               style={{ 
-                minWidth: '180px',
                 opacity: submitting ? 0.7 : 1,
                 cursor: submitting ? 'not-allowed' : 'pointer'
               }}
             >
               {submitting ? (
                 <>
-                  <span className="pulse">⏳</span> Salvando no Banco...
+                  <span className="pulse">⏳</span> Salvando...
                 </>
               ) : (
-                <>✅ Cadastrar Ferramenta</>
+                <>✅ Cadastrar</>
               )}
             </button>
             
@@ -129,7 +126,6 @@ function RegisterTool() {
               onClick={() => dispatch({ type: 'SET_VIEW', payload: 'home' })}
               className="btn-secondary"
               disabled={submitting}
-              style={{ minWidth: '140px' }}
             >
               ⬅️ Voltar
             </button>
@@ -137,17 +133,7 @@ function RegisterTool() {
         </form>
       </div>
 
-      {/* Dicas e informações */}
-      <div className="professional-card" style={{ maxWidth: '600px', margin: '30px auto 0' }}>
-        <h3 className="subsection-title">💡 Dicas para Cadastro</h3>
-        <ul style={{ color: '#4a5568', lineHeight: '1.6' }}>
-          <li>🏷️ <strong>Nome descritivo</strong> - Use marca e modelo quando possível</li>
-          <li>🔧 <strong>Exemplos</strong> - "Furadeira Bosch GSB 13", "Martelo 500g", "Chave Inglesa 12""</li>
-          <li>💾 <strong>Salvo na nuvem</strong> - Dados ficam seguros no Firebase</li>
-          <li>🔄 <strong>Sincronização</strong> - Aparece em tempo real em todos os dispositivos</li>
-          <li>📱 <strong>Acesso móvel</strong> - Seu cliente pode usar no celular</li>
-        </ul>
-      </div>
+
     </div>
   );
 }
