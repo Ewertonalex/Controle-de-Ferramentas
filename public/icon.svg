@@ -1,1 +1,78 @@
- 
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradientes -->
+    <linearGradient id="wrenchGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A855F7;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="screwdriverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F97316;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EF4444;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F8FAFC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E2E8F0;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Sombras -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="4" dy="8" stdDeviation="8" flood-color="rgba(0,0,0,0.2)"/>
+    </filter>
+  </defs>
+  
+  <!-- Background circular -->
+  <circle cx="256" cy="256" r="240" fill="url(#backgroundGradient)" stroke="#E2E8F0" stroke-width="4"/>
+  
+  <!-- Chave Inglesa (Wrench) -->
+  <g transform="translate(256,256) rotate(-45)" filter="url(#shadow)">
+    <!-- Cabo da chave inglesa -->
+    <rect x="-8" y="-120" width="16" height="180" fill="url(#wrenchGradient)" rx="8"/>
+    
+    <!-- Cabeça da chave inglesa -->
+    <ellipse cx="0" cy="-120" rx="25" ry="15" fill="url(#wrenchGradient)"/>
+    
+    <!-- Mandíbula fixa -->
+    <rect x="-25" y="-135" width="35" height="12" fill="url(#wrenchGradient)" rx="6"/>
+    
+    <!-- Mandíbula móvel -->
+    <rect x="-20" y="-115" width="25" height="8" fill="url(#wrenchGradient)" rx="4"/>
+    
+    <!-- Rosca de ajuste -->
+    <circle cx="0" cy="-105" r="8" fill="#4F46E5"/>
+    <circle cx="0" cy="-105" r="4" fill="#6366F1"/>
+  </g>
+  
+  <!-- Chave de Fenda (Screwdriver) -->
+  <g transform="translate(256,256) rotate(45)" filter="url(#shadow)">
+    <!-- Cabo da chave de fenda -->
+    <rect x="-6" y="30" width="12" height="90" fill="url(#screwdriverGradient)" rx="6"/>
+    
+    <!-- Parte metálica -->
+    <rect x="-3" y="-30" width="6" height="60" fill="#94A3B8" rx="3"/>
+    
+    <!-- Ponta da chave de fenda -->
+    <rect x="-2" y="-35" width="4" height="8" fill="#64748B" rx="1"/>
+    
+    <!-- Detalhes do cabo -->
+    <circle cx="0" cy="75" r="8" fill="#DC2626"/>
+    <circle cx="0" cy="95" r="6" fill="#EF4444"/>
+    
+    <!-- Textura do cabo -->
+    <rect x="-6" y="40" width="12" height="2" fill="rgba(0,0,0,0.1)"/>
+    <rect x="-6" y="50" width="12" height="2" fill="rgba(0,0,0,0.1)"/>
+    <rect x="-6" y="60" width="12" height="2" fill="rgba(0,0,0,0.1)"/>
+  </g>
+  
+  <!-- Elementos decorativos -->
+  <circle cx="150" cy="150" r="4" fill="#667EEA" opacity="0.6"/>
+  <circle cx="362" cy="180" r="3" fill="#F59E0B" opacity="0.7"/>
+  <circle cx="180" cy="350" r="5" fill="#8B5CF6" opacity="0.5"/>
+  <circle cx="340" cy="320" r="3" fill="#EF4444" opacity="0.6"/>
+  
+  <!-- Highlight effect -->
+  <circle cx="256" cy="256" r="240" fill="none" stroke="url(#wrenchGradient)" stroke-width="2" opacity="0.3"/>
+</svg> 
