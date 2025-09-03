@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import {
   addCollaborator as addCollaboratorDB,
+  updateCollaborator as updateCollaboratorDB,
+  deleteCollaborator as deleteCollaboratorDB,
   addTool as addToolDB,
+  updateTool as updateToolDB,
+  deleteTool as deleteToolDB,
   addLoan as addLoanDB,
   returnTool as returnToolDB,
   subscribeToCollaborators,
@@ -115,6 +119,30 @@ export function AppProvider({ children }) {
       }
     },
 
+    async updateCollaborator(collaboratorId, updatedData) {
+      try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        await updateCollaboratorDB(collaboratorId, updatedData);
+        dispatch({ type: 'SET_LOADING', payload: false });
+        return true;
+      } catch (error) {
+        dispatch({ type: 'SET_ERROR', payload: 'Erro ao atualizar colaborador' });
+        throw error;
+      }
+    },
+
+    async deleteCollaborator(collaboratorId) {
+      try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        await deleteCollaboratorDB(collaboratorId);
+        dispatch({ type: 'SET_LOADING', payload: false });
+        return true;
+      } catch (error) {
+        dispatch({ type: 'SET_ERROR', payload: 'Erro ao excluir colaborador' });
+        throw error;
+      }
+    },
+
     async addTool(tool) {
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
@@ -125,6 +153,30 @@ export function AppProvider({ children }) {
         return newTool;
       } catch (error) {
         dispatch({ type: 'SET_ERROR', payload: 'Erro ao cadastrar ferramenta' });
+        throw error;
+      }
+    },
+
+    async updateTool(toolId, updatedData) {
+      try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        await updateToolDB(toolId, updatedData);
+        dispatch({ type: 'SET_LOADING', payload: false });
+        return true;
+      } catch (error) {
+        dispatch({ type: 'SET_ERROR', payload: 'Erro ao atualizar ferramenta' });
+        throw error;
+      }
+    },
+
+    async deleteTool(toolId) {
+      try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        await deleteToolDB(toolId);
+        dispatch({ type: 'SET_LOADING', payload: false });
+        return true;
+      } catch (error) {
+        dispatch({ type: 'SET_ERROR', payload: 'Erro ao excluir ferramenta' });
         throw error;
       }
     },

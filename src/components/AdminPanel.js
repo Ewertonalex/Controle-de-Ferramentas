@@ -4,6 +4,10 @@ import { useApp } from '../context/AppContext';
 function AdminPanel() {
   const { state, dispatch, actions } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [editingCollaborator, setEditingCollaborator] = useState(null);
+  const [editingTool, setEditingTool] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editCpf, setEditCpf] = useState('');
 
   const handleReturnTool = async (loanId) => {
     if (window.confirm('Confirmar devolução da ferramenta?')) {
@@ -40,6 +44,129 @@ function AdminPanel() {
     }
   };
 
+  const handleEditCollaborator = (collaborator) => {
+    setEditingCollaborator(collaborator.id);
+    setEditName(collaborator.name);
+    setEditCpf(collaborator.cpf);
+  };
+
+  const handleSaveCollaborator = async () => {
+    try {
+      await actions.updateCollaborator(editingCollaborator, {
+        name: editName.trim(),
+        cpf: editCpf.trim()
+      });
+      setEditingCollaborator(null);
+      setEditName('');
+      setEditCpf('');
+      
+      const successMessage = document.createElement('div');
+      successMessage.innerHTML = '✅ Colaborador atualizado com sucesso!';
+      successMessage.style.cssText = `
+        position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; z-index: 1000;
+        box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+      `;
+      document.body.appendChild(successMessage);
+      setTimeout(() => { if (document.body.contains(successMessage)) document.body.removeChild(successMessage); }, 3000);
+    } catch (error) {
+      console.error('Erro ao atualizar colaborador:', error);
+    }
+  };
+
+  const handleDeleteCollaborator = async (collaborator) => {
+    const hasActiveLoans = state.loans.some(loan => 
+      loan.collaboratorId.toString() === collaborator.id.toString() && loan.status === 'active'
+    );
+    
+    if (hasActiveLoans) {
+      alert('❌ Não é possível excluir colaborador com empréstimos ativos');
+      return;
+    }
+    
+    if (window.confirm(`Confirma a exclusão do colaborador "${collaborator.name}"?`)) {
+      try {
+        await actions.deleteCollaborator(collaborator.id);
+        
+        const successMessage = document.createElement('div');
+        successMessage.innerHTML = '✅ Colaborador excluído com sucesso!';
+        successMessage.style.cssText = `
+          position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+          color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; z-index: 1000;
+          box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3);
+        `;
+        document.body.appendChild(successMessage);
+        setTimeout(() => { if (document.body.contains(successMessage)) document.body.removeChild(successMessage); }, 3000);
+      } catch (error) {
+        console.error('Erro ao excluir colaborador:', error);
+      }
+    }
+  };
+
+  const handleEditTool = (tool) => {
+    setEditingTool(tool.id);
+    setEditName(tool.name);
+  };
+
+  const handleSaveTool = async () => {
+    try {
+      await actions.updateTool(editingTool, {
+        name: editName.trim()
+      });
+      setEditingTool(null);
+      setEditName('');
+      
+      const successMessage = document.createElement('div');
+      successMessage.innerHTML = '✅ Ferramenta atualizada com sucesso!';
+      successMessage.style.cssText = `
+        position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; z-index: 1000;
+        box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+      `;
+      document.body.appendChild(successMessage);
+      setTimeout(() => { if (document.body.contains(successMessage)) document.body.removeChild(successMessage); }, 3000);
+    } catch (error) {
+      console.error('Erro ao atualizar ferramenta:', error);
+    }
+  };
+
+  const handleDeleteTool = async (tool) => {
+    const isCurrentlyBorrowed = state.loans.some(loan => 
+      loan.toolIds && loan.toolIds.some(id => id.toString() === tool.id.toString()) && loan.status === 'active'
+    );
+    
+    if (isCurrentlyBorrowed) {
+      alert('❌ Não é possível excluir ferramenta que está emprestada');
+      return;
+    }
+    
+    if (window.confirm(`Confirma a exclusão da ferramenta "${tool.name}"?`)) {
+      try {
+        await actions.deleteTool(tool.id);
+        
+        const successMessage = document.createElement('div');
+        successMessage.innerHTML = '✅ Ferramenta excluída com sucesso!';
+        successMessage.style.cssText = `
+          position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+          color: white; padding: 15px 20px; border-radius: 12px; font-weight: 600; z-index: 1000;
+          box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3);
+        `;
+        document.body.appendChild(successMessage);
+        setTimeout(() => { if (document.body.contains(successMessage)) document.body.removeChild(successMessage); }, 3000);
+      } catch (error) {
+        console.error('Erro ao excluir ferramenta:', error);
+      }
+    }
+  };
+
+  const formatCPF = (value) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 11) {
+      return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    return value;
+  };
+
   const activeLoans = state.loans.filter(loan => loan.status === 'active');
   const completedLoans = state.loans.filter(loan => loan.status === 'returned');
 
@@ -66,22 +193,56 @@ function AdminPanel() {
                     <tr>
                       <th>Nome</th>
                       <th>CPF</th>
-                      <th>Cadastro</th>
                       <th>Total</th>
                       <th>Ativos</th>
+                      <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {state.collaborators.map(collaborator => {
-                      const collaboratorLoans = state.loans.filter(loan => loan.collaboratorId === collaborator.id);
+                      const collaboratorLoans = state.loans.filter(loan => loan.collaboratorId.toString() === collaborator.id.toString());
                       const activeCollaboratorLoans = collaboratorLoans.filter(loan => loan.status === 'active');
+                      const isEditing = editingCollaborator === collaborator.id;
+                      
                       return (
                         <tr key={collaborator.id}>
                           <td style={{ fontWeight: '600' }}>
-                            {collaborator.name}
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
+                                style={{
+                                  width: '100%',
+                                  padding: '4px 6px',
+                                  border: '1px solid #667eea',
+                                  borderRadius: '4px',
+                                  fontSize: '0.7rem'
+                                }}
+                              />
+                            ) : (
+                              collaborator.name
+                            )}
                           </td>
-                          <td>{collaborator.cpf}</td>
-                          <td>{new Date(collaborator.createdAt).toLocaleDateString('pt-BR')}</td>
+                          <td>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editCpf}
+                                onChange={(e) => setEditCpf(formatCPF(e.target.value))}
+                                maxLength="14"
+                                style={{
+                                  width: '100%',
+                                  padding: '4px 6px',
+                                  border: '1px solid #667eea',
+                                  borderRadius: '4px',
+                                  fontSize: '0.7rem'
+                                }}
+                              />
+                            ) : (
+                              collaborator.cpf
+                            )}
+                          </td>
                           <td style={{ textAlign: 'center' }}>
                             <span className="status-badge" style={{ backgroundColor: '#007bff', color: 'white' }}>
                               {collaboratorLoans.length}
@@ -91,6 +252,49 @@ function AdminPanel() {
                             <span className={`status-badge ${activeCollaboratorLoans.length > 0 ? 'status-active' : 'status-returned'}`}>
                               {activeCollaboratorLoans.length}
                             </span>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            {isEditing ? (
+                              <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                                <button
+                                  onClick={handleSaveCollaborator}
+                                  className="btn-success"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                  disabled={!editName.trim() || !editCpf.trim()}
+                                >
+                                  ✅
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingCollaborator(null);
+                                    setEditName('');
+                                    setEditCpf('');
+                                  }}
+                                  className="btn-secondary"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                >
+                                  ❌
+                                </button>
+                              </div>
+                            ) : (
+                              <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                                <button
+                                  onClick={() => handleEditCollaborator(collaborator)}
+                                  className="btn-secondary"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteCollaborator(collaborator)}
+                                  className="btn-danger"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                  disabled={activeCollaboratorLoans.length > 0}
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       );
@@ -123,30 +327,47 @@ function AdminPanel() {
                     <tr>
                       <th>Ferramenta</th>
                       <th>Status</th>
-                      <th>Cadastro</th>
                       <th>Total</th>
                       <th>Último Uso</th>
+                      <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {state.tools.map(tool => {
-                      const toolLoans = state.loans.filter(loan => loan.toolIds.includes(tool.id));
+                      const toolLoans = state.loans.filter(loan => 
+                        loan.toolIds && loan.toolIds.some(id => id.toString() === tool.id.toString())
+                      );
                       const isCurrentlyBorrowed = state.loans.some(loan => 
-                        loan.toolIds.includes(tool.id) && loan.status === 'active'
+                        loan.toolIds && loan.toolIds.some(id => id.toString() === tool.id.toString()) && loan.status === 'active'
                       );
                       const lastLoan = toolLoans.sort((a, b) => new Date(b.loanDate) - new Date(a.loanDate))[0];
+                      const isEditing = editingTool === tool.id;
                       
                       return (
                         <tr key={tool.id}>
                           <td style={{ fontWeight: '600' }}>
-                            {tool.name}
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
+                                style={{
+                                  width: '100%',
+                                  padding: '4px 6px',
+                                  border: '1px solid #667eea',
+                                  borderRadius: '4px',
+                                  fontSize: '0.7rem'
+                                }}
+                              />
+                            ) : (
+                              tool.name
+                            )}
                           </td>
                           <td style={{ textAlign: 'center' }}>
                             <span className={`status-badge ${isCurrentlyBorrowed ? 'status-borrowed' : 'status-available'}`}>
                               {isCurrentlyBorrowed ? '🔴' : '🟢'}
                             </span>
                           </td>
-                          <td>{new Date(tool.createdAt).toLocaleDateString('pt-BR')}</td>
                           <td style={{ textAlign: 'center' }}>
                             <span className="status-badge" style={{ backgroundColor: '#007bff', color: 'white' }}>
                               {toolLoans.length}
@@ -166,6 +387,48 @@ function AdminPanel() {
                               <span style={{ color: '#a0aec0', fontStyle: 'italic', fontSize: '0.7rem' }}>
                                 Nunca
                               </span>
+                            )}
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            {isEditing ? (
+                              <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                                <button
+                                  onClick={handleSaveTool}
+                                  className="btn-success"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                  disabled={!editName.trim()}
+                                >
+                                  ✅
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingTool(null);
+                                    setEditName('');
+                                  }}
+                                  className="btn-secondary"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                >
+                                  ❌
+                                </button>
+                              </div>
+                            ) : (
+                              <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                                <button
+                                  onClick={() => handleEditTool(tool)}
+                                  className="btn-secondary"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteTool(tool)}
+                                  className="btn-danger"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                  disabled={isCurrentlyBorrowed}
+                                >
+                                  🗑️
+                                </button>
+                              </div>
                             )}
                           </td>
                         </tr>

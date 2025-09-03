@@ -3,6 +3,7 @@ import {
   addDoc, 
   getDocs, 
   updateDoc, 
+  deleteDoc,
   doc, 
   query, 
   orderBy,
@@ -21,6 +22,31 @@ export const addCollaborator = async (collaborator) => {
     return { id: docRef.id, ...collaborator };
   } catch (error) {
     console.error('Erro ao adicionar colaborador:', error);
+    throw error;
+  }
+};
+
+export const updateCollaborator = async (collaboratorId, updatedData) => {
+  try {
+    const collaboratorRef = doc(db, 'collaborators', collaboratorId);
+    await updateDoc(collaboratorRef, {
+      ...updatedData,
+      updatedAt: serverTimestamp()
+    });
+    return true;
+  } catch (error) {
+    console.error('Erro ao atualizar colaborador:', error);
+    throw error;
+  }
+};
+
+export const deleteCollaborator = async (collaboratorId) => {
+  try {
+    const collaboratorRef = doc(db, 'collaborators', collaboratorId);
+    await deleteDoc(collaboratorRef);
+    return true;
+  } catch (error) {
+    console.error('Erro ao excluir colaborador:', error);
     throw error;
   }
 };
@@ -50,6 +76,31 @@ export const addTool = async (tool) => {
     return { id: docRef.id, ...tool };
   } catch (error) {
     console.error('Erro ao adicionar ferramenta:', error);
+    throw error;
+  }
+};
+
+export const updateTool = async (toolId, updatedData) => {
+  try {
+    const toolRef = doc(db, 'tools', toolId);
+    await updateDoc(toolRef, {
+      ...updatedData,
+      updatedAt: serverTimestamp()
+    });
+    return true;
+  } catch (error) {
+    console.error('Erro ao atualizar ferramenta:', error);
+    throw error;
+  }
+};
+
+export const deleteTool = async (toolId) => {
+  try {
+    const toolRef = doc(db, 'tools', toolId);
+    await deleteDoc(toolRef);
+    return true;
+  } catch (error) {
+    console.error('Erro ao excluir ferramenta:', error);
     throw error;
   }
 };

@@ -8,16 +8,18 @@ function LoanTool() {
   const [expectedReturnDate, setExpectedReturnDate] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const availableTools = state.tools.filter(tool => {
-    return !state.loans.some(loan => 
-      loan.toolIds.includes(tool.id) && loan.status === 'active'
+  // Mostrar todas as ferramentas, com indicação de status
+  const allTools = state.tools.map(tool => {
+    const isCurrentlyBorrowed = state.loans.some(loan => 
+      loan.toolIds && loan.toolIds.some(id => id.toString() === tool.id.toString()) && loan.status === 'active'
     );
+    return { ...tool, isCurrentlyBorrowed };
   });
 
   const handleToolSelection = (toolId) => {
     setSelectedTools(prev => 
-      prev.includes(toolId)
-        ? prev.filter(id => id !== toolId)
+      prev.some(id => id.toString() === toolId.toString())
+        ? prev.filter(id => id.toString() !== toolId.toString())
         : [...prev, toolId]
     );
   };
@@ -43,8 +45,21 @@ function LoanTool() {
     setSubmitting(true);
 
     try {
-      const collaborator = state.collaborators.find(c => c.id === parseInt(selectedCollaborator));
-      const tools = selectedTools.map(toolId => state.tools.find(t => t.id === toolId));
+      // Validar se o colaborador existe
+      const collaborator = state.collaborators.find(c => c.id.toString() === selectedCollaborator.toString());
+      if (!collaborator) {
+        alert('❌ Colaborador não encontrado. Tente selecionar novamente.');
+        setSubmitting(false);
+        return;
+      }
+      
+      // Validar se todas as ferramentas existem
+      const tools = selectedTools.map(toolId => state.tools.find(t => t.id.toString() === toolId.toString())).filter(Boolean);
+      if (tools.length !== selectedTools.length) {
+        alert('❌ Algumas ferramentas não foram encontradas. Tente selecionar novamente.');
+        setSubmitting(false);
+        return;
+      }
       
       await actions.addLoan({
         collaboratorId: collaborator.id,
@@ -90,8 +105,8 @@ function LoanTool() {
     }
   };
 
-  const selectedCollaboratorData = state.collaborators.find(c => c.id === parseInt(selectedCollaborator));
-  const selectedToolsData = selectedTools.map(toolId => state.tools.find(t => t.id === toolId));
+  const selectedCollaboratorData = state.collaborators.find(c => c.id.toString() === selectedCollaborator.toString());
+  const selectedToolsData = selectedTools.map(toolId => state.tools.find(t => t.id.toString() === toolId.toString())).filter(Boolean);
 
   return (
     <div className="main-container fade-in-up">
@@ -145,8 +160,8 @@ function LoanTool() {
 
           {/* Seleção de Ferramentas */}
           <div className="form-group">
-            <label className="form-label">Ferramentas Disponíveis *</label>
-            {availableTools.length === 0 ? (
+            <label className="form-label">Selecionar Ferramentas *</label>
+            {allTools.length === 0 ? (
               <div style={{
                 background: 'rgba(245, 101, 101, 0.1)',
                 border: '1px solid rgba(245, 101, 101, 0.2)',
@@ -154,9 +169,9 @@ function LoanTool() {
                 padding: '20px',
                 textAlign: 'center'
               }}>
-                <p style={{ margin: '0 0 15px 0', color: '#c53030' }}>
-                  ⚠️ Nenhuma ferramenta disponível
-                </p>
+                                 <p style={{ margin: '0 0 15px 0', color: '#c53030' }}>
+                   ⚠️ Nenhuma ferramenta cadastrada
+                 </p>
                 <button 
                   type="button"
                   onClick={() => dispatch({ type: 'SET_VIEW', payload: 'register-tool' })}
@@ -166,32 +181,38 @@ function LoanTool() {
                 </button>
               </div>
             ) : (
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.9)',
-                border: '2px solid #e2e8f0',
-                borderRadius: '12px',
-                padding: '20px',
-                maxHeight: '300px',
-                overflowY: 'auto'
-              }}>
-                <p style={{ margin: '0 0 15px 0', color: '#4a5568', fontSize: '0.875rem' }}>
-                  Selecione uma ou mais ferramentas:
-                </p>
-                {availableTools.map(tool => (
-                  <label key={tool.id} className="custom-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={selectedTools.includes(tool.id)}
-                      onChange={() => handleToolSelection(tool.id)}
-                      disabled={submitting}
-                    />
-                    <span style={{ fontWeight: '500' }}>{tool.name}</span>
-                    <span className="status-badge status-available" style={{ marginLeft: 'auto' }}>
-                      🟢 Disponível
-                    </span>
-                  </label>
-                ))}
-              </div>
+                             <div style={{
+                 background: 'rgba(255, 255, 255, 0.9)',
+                 border: '2px solid #e2e8f0',
+                 borderRadius: '12px',
+                 padding: '20px',
+                 maxHeight: '300px',
+                 overflowY: 'auto'
+               }}>
+                 <p style={{ margin: '0 0 15px 0', color: '#4a5568', fontSize: '0.875rem' }}>
+                   Selecione uma ou mais ferramentas:
+                 </p>
+                 {allTools.map(tool => (
+                   <label key={tool.id} className="custom-checkbox">
+                     <input
+                       type="checkbox"
+                       checked={selectedTools.some(id => id.toString() === tool.id.toString())}
+                       onChange={() => handleToolSelection(tool.id)}
+                       disabled={submitting || tool.isCurrentlyBorrowed}
+                     />
+                     <span style={{ 
+                       fontWeight: '500',
+                       opacity: tool.isCurrentlyBorrowed ? 0.6 : 1,
+                       textDecoration: tool.isCurrentlyBorrowed ? 'line-through' : 'none'
+                     }}>
+                       {tool.name}
+                     </span>
+                     <span className={`status-badge ${tool.isCurrentlyBorrowed ? 'status-borrowed' : 'status-available'}`} style={{ marginLeft: 'auto' }}>
+                       {tool.isCurrentlyBorrowed ? '🔴' : '🟢'}
+                     </span>
+                   </label>
+                 ))}
+               </div>
             )}
           </div>
 
