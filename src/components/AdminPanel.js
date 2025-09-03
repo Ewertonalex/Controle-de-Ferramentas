@@ -64,12 +64,11 @@ function AdminPanel() {
                 <table className="professional-table">
                   <thead>
                     <tr>
-                      <th>ID</th>
                       <th>Nome</th>
                       <th>CPF</th>
-                      <th>Data Cadastro</th>
-                      <th>Total Empréstimos</th>
-                      <th>Empréstimos Ativos</th>
+                      <th>Cadastro</th>
+                      <th>Total</th>
+                      <th>Ativos</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -78,9 +77,6 @@ function AdminPanel() {
                       const activeCollaboratorLoans = collaboratorLoans.filter(loan => loan.status === 'active');
                       return (
                         <tr key={collaborator.id}>
-                          <td style={{ fontWeight: '600', color: '#667eea' }}>
-                            #{collaborator.id}
-                          </td>
                           <td style={{ fontWeight: '600' }}>
                             {collaborator.name}
                           </td>
@@ -125,12 +121,11 @@ function AdminPanel() {
                 <table className="professional-table">
                   <thead>
                     <tr>
-                      <th>ID</th>
-                      <th>Nome da Ferramenta</th>
-                      <th>Status Atual</th>
-                      <th>Data Cadastro</th>
-                      <th>Total Empréstimos</th>
-                      <th>Último Empréstimo</th>
+                      <th>Ferramenta</th>
+                      <th>Status</th>
+                      <th>Cadastro</th>
+                      <th>Total</th>
+                      <th>Último Uso</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -143,15 +138,12 @@ function AdminPanel() {
                       
                       return (
                         <tr key={tool.id}>
-                          <td style={{ fontWeight: '600', color: '#667eea' }}>
-                            #{tool.id}
-                          </td>
                           <td style={{ fontWeight: '600' }}>
                             {tool.name}
                           </td>
                           <td style={{ textAlign: 'center' }}>
                             <span className={`status-badge ${isCurrentlyBorrowed ? 'status-borrowed' : 'status-available'}`}>
-                              {isCurrentlyBorrowed ? '🔴 Emprestada' : '🟢 Disponível'}
+                              {isCurrentlyBorrowed ? '🔴' : '🟢'}
                             </span>
                           </td>
                           <td>{new Date(tool.createdAt).toLocaleDateString('pt-BR')}</td>
@@ -163,16 +155,16 @@ function AdminPanel() {
                           <td>
                             {lastLoan ? (
                               <div>
-                                <div style={{ fontSize: '0.875rem', fontWeight: '600' }}>
+                                <div style={{ fontSize: '0.7rem', fontWeight: '600' }}>
                                   {lastLoan.collaboratorName}
                                 </div>
-                                <div style={{ fontSize: '0.75rem', color: '#a0aec0' }}>
+                                <div style={{ fontSize: '0.65rem', color: '#a0aec0' }}>
                                   {new Date(lastLoan.loanDate).toLocaleDateString('pt-BR')}
                                 </div>
                               </div>
                             ) : (
-                              <span style={{ color: '#a0aec0', fontStyle: 'italic' }}>
-                                Nunca emprestada
+                              <span style={{ color: '#a0aec0', fontStyle: 'italic', fontSize: '0.7rem' }}>
+                                Nunca
                               </span>
                             )}
                           </td>
@@ -229,44 +221,42 @@ function AdminPanel() {
                 </div>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
-                  <table className="professional-table">
-                    <thead>
-                      <tr>
-                        <th>Colaborador</th>
-                        <th>Ferramentas</th>
-                        <th>Data Empréstimo</th>
-                        <th>Data Prevista</th>
-                        <th>Status</th>
-                        <th>Ações</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeLoans.map(loan => {
-                        const isOverdue = new Date(loan.expectedReturnDate) < new Date();
-                        return (
-                          <tr key={loan.id}>
-                            <td style={{ fontWeight: '600' }}>{loan.collaboratorName}</td>
-                            <td>{loan.toolNames.join(', ')}</td>
-                            <td>{new Date(loan.loanDate).toLocaleDateString('pt-BR')}</td>
-                            <td style={{ color: isOverdue ? '#e53e3e' : '#4a5568' }}>
-                              {new Date(loan.expectedReturnDate).toLocaleDateString('pt-BR')}
-                            </td>
-                            <td>
-                              <span className={`status-badge ${isOverdue ? 'status-borrowed' : 'status-active'}`}>
-                                {isOverdue ? '🔴 Atrasado' : '🟢 No Prazo'}
-                              </span>
-                            </td>
-                            <td>
-                              <button
-                                onClick={() => handleReturnTool(loan.id)}
-                                className="btn-danger"
-                              >
-                                🔄 Devolver
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                                     <table className="professional-table">
+                     <thead>
+                       <tr>
+                         <th>Colaborador</th>
+                         <th>Ferramentas</th>
+                         <th>Devolução</th>
+                         <th>Status</th>
+                         <th>Ação</th>
+                       </tr>
+                     </thead>
+                     <tbody>
+                       {activeLoans.map(loan => {
+                         const isOverdue = new Date(loan.expectedReturnDate) < new Date();
+                         return (
+                           <tr key={loan.id}>
+                             <td style={{ fontWeight: '600' }}>{loan.collaboratorName}</td>
+                             <td>{loan.toolNames.join(', ')}</td>
+                             <td style={{ color: isOverdue ? '#e53e3e' : '#4a5568' }}>
+                               {new Date(loan.expectedReturnDate).toLocaleDateString('pt-BR')}
+                             </td>
+                             <td style={{ textAlign: 'center' }}>
+                               <span className={`status-badge ${isOverdue ? 'status-borrowed' : 'status-active'}`}>
+                                 {isOverdue ? '🔴' : '🟢'}
+                               </span>
+                             </td>
+                             <td style={{ textAlign: 'center' }}>
+                               <button
+                                 onClick={() => handleReturnTool(loan.id)}
+                                 className="btn-danger"
+                               >
+                                 🔄
+                               </button>
+                             </td>
+                           </tr>
+                         );
+                       })}
                     </tbody>
                   </table>
                 </div>

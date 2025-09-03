@@ -62,9 +62,8 @@ function Home() {
               <thead>
                 <tr>
                   <th>Colaborador</th>
-                  <th>Ferramenta(s)</th>
-                  <th>Data Empréstimo</th>
-                  <th>Data Prevista</th>
+                  <th>Ferramentas</th>
+                  <th>Devolução</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -75,13 +74,12 @@ function Home() {
                     <tr key={loan.id}>
                       <td style={{ fontWeight: '600' }}>{loan.collaboratorName}</td>
                       <td>{loan.toolNames.join(', ')}</td>
-                      <td>{new Date(loan.loanDate).toLocaleDateString('pt-BR')}</td>
                       <td style={{ color: isOverdue ? '#e53e3e' : '#4a5568' }}>
                         {new Date(loan.expectedReturnDate).toLocaleDateString('pt-BR')}
                       </td>
-                      <td>
+                      <td style={{ textAlign: 'center' }}>
                         <span className={`status-badge ${isOverdue ? 'status-borrowed' : 'status-active'}`}>
-                          {isOverdue ? '🔴 Atrasado' : '🟢 No Prazo'}
+                          {isOverdue ? '🔴' : '🟢'}
                         </span>
                       </td>
                     </tr>
