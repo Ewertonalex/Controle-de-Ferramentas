@@ -76,13 +76,18 @@ function LoanTool() {
         return;
       }
       
-      await actions.addLoan({
-        collaboratorId: collaborator.id,
-        collaboratorName: collaborator.name,
-        toolIds: selectedTools,
-        toolNames: tools.map(tool => tool.name),
-        expectedReturnDate: expectedReturnDate
-      });
+              // Garantir que a data seja salva exatamente como selecionada
+        // Forçar timezone local para evitar conversão automática
+        const [year, month, day] = expectedReturnDate.split('-');
+        const correctDate = `${year}-${month}-${day}`;
+        
+        await actions.addLoan({
+          collaboratorId: collaborator.id,
+          collaboratorName: collaborator.name,
+          toolIds: selectedTools,
+          toolNames: tools.map(tool => tool.name),
+          expectedReturnDate: correctDate
+        });
       
       // Reset form
       setSelectedCollaborator('');
@@ -259,7 +264,7 @@ function LoanTool() {
               
               {expectedReturnDate && (
                 <p style={{ margin: '5px 0', color: '#4a5568' }}>
-                  <strong>📅 Devolução esperada:</strong> {new Date(expectedReturnDate).toLocaleDateString('pt-BR')}
+                  <strong>📅 Devolução esperada:</strong> {new Date(expectedReturnDate + 'T00:00:00').toLocaleDateString('pt-BR')}
                 </p>
               )}
             </div>
@@ -299,7 +304,30 @@ function LoanTool() {
         </form>
       </div>
 
-
+      {/* Rodapé */}
+      <div style={{
+        textAlign: 'center',
+        marginTop: '30px',
+        padding: '20px',
+        color: '#a0aec0',
+        fontSize: '0.75rem'
+      }}>
+        <p style={{ margin: 0 }}>
+          © 2025 - Criado por{' '}
+          <a 
+            href="https://www.linkedin.com/in/ewertonalexander/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              color: '#667eea',
+              textDecoration: 'none',
+              fontWeight: '600'
+            }}
+          >
+            Ewerton Alexander
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

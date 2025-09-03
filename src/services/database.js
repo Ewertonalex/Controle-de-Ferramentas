@@ -165,6 +165,17 @@ export const returnTool = async (loanId) => {
   }
 };
 
+export const deleteLoan = async (loanId) => {
+  try {
+    const loanRef = doc(db, 'loans', loanId);
+    await deleteDoc(loanRef);
+    return true;
+  } catch (error) {
+    console.error('Erro ao excluir empréstimo:', error);
+    throw error;
+  }
+};
+
 // ===== LISTENERS EM TEMPO REAL =====
 export const subscribeToCollaborators = (callback) => {
   const q = query(collection(db, 'collaborators'), orderBy('createdAt', 'desc'));

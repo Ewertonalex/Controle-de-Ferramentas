@@ -133,7 +133,30 @@ function RegisterTool() {
         </form>
       </div>
 
-
+      {/* Rodapé */}
+      <div style={{
+        textAlign: 'center',
+        marginTop: '30px',
+        padding: '20px',
+        color: '#a0aec0',
+        fontSize: '0.75rem'
+      }}>
+        <p style={{ margin: 0 }}>
+          © 2025 - Criado por{' '}
+          <a 
+            href="https://www.linkedin.com/in/ewertonalexander/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              color: '#667eea',
+              textDecoration: 'none',
+              fontWeight: '600'
+            }}
+          >
+            Ewerton Alexander
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

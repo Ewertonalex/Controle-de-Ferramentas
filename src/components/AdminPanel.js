@@ -9,40 +9,7 @@ function AdminPanel() {
   const [editName, setEditName] = useState('');
   const [editCpf, setEditCpf] = useState('');
 
-  const handleReturnTool = async (loanId) => {
-    if (window.confirm('Confirmar devolução da ferramenta?')) {
-      try {
-        await actions.returnTool(loanId);
-        
-        // Feedback visual de sucesso
-        const successMessage = document.createElement('div');
-        successMessage.innerHTML = '✅ Ferramenta devolvida com sucesso!';
-        successMessage.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-          color: white;
-          padding: 15px 20px;
-          border-radius: 12px;
-          font-weight: 600;
-          z-index: 1000;
-          box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
-        `;
-        document.body.appendChild(successMessage);
-        
-        setTimeout(() => {
-          if (document.body.contains(successMessage)) {
-            document.body.removeChild(successMessage);
-          }
-        }, 3000);
-        
-      } catch (error) {
-        console.error('Erro ao devolver ferramenta:', error);
-        alert('❌ Erro ao devolver ferramenta. Verifique sua conexão.');
-      }
-    }
-  };
+
 
   const handleEditCollaborator = (collaborator) => {
     setEditingCollaborator(collaborator.id);
@@ -166,6 +133,59 @@ function AdminPanel() {
     );
   };
 
+  const handleReturnTool = async (loanId) => {
+    const loan = state.loans.find(l => l.id === loanId);
+    if (!loan) return;
+    
+    actions.showModal(
+      'Confirmar Devolução',
+      `Confirmar a devolução das ferramentas?\n\nColaborador: ${loan.collaboratorName}\nFerramentas: ${loan.toolNames.join(', ')}\n\nAs ferramentas ficarão disponíveis novamente.`,
+      'confirm',
+      async () => {
+        try {
+          await actions.returnTool(loanId);
+          actions.showModal(
+            'Sucesso!',
+            'Ferramentas devolvidas com sucesso!',
+            'success'
+          );
+        } catch (error) {
+          console.error('Erro ao devolver ferramenta:', error);
+          actions.showModal(
+            'Erro',
+            'Erro ao devolver ferramentas. Tente novamente.',
+            'error'
+          );
+        }
+      }
+    );
+  };
+
+  const handleDeleteLoan = async (loan) => {
+    actions.showModal(
+      'Confirmar Exclusão',
+      `Tem certeza que deseja excluir este empréstimo atrasado?\n\nColaborador: ${loan.collaboratorName}\nFerramentas: ${loan.toolNames.join(', ')}\n\nEsta ação não pode ser desfeita.`,
+      'confirm',
+      async () => {
+        try {
+          await actions.deleteLoan(loan.id);
+          actions.showModal(
+            'Sucesso!',
+            'Empréstimo excluído com sucesso!',
+            'success'
+          );
+        } catch (error) {
+          console.error('Erro ao excluir empréstimo:', error);
+          actions.showModal(
+            'Erro',
+            'Erro ao excluir empréstimo. Tente novamente.',
+            'error'
+          );
+        }
+      }
+    );
+  };
+
   const formatCPF = (value) => {
     const numbers = value.replace(/\D/g, '');
     if (numbers.length <= 11) {
@@ -176,9 +196,13 @@ function AdminPanel() {
 
   const activeLoans = state.loans.filter(loan => loan.status === 'active');
   const completedLoans = state.loans.filter(loan => loan.status === 'returned');
-  const overdueLoans = activeLoans.filter(loan => 
-    new Date(loan.expectedReturnDate) < new Date()
-  );
+  
+  // Comparar apenas as datas (sem hora) para evitar problemas de timezone
+  const today = new Date().toISOString().split('T')[0];
+  const overdueLoans = activeLoans.filter(loan => {
+    const loanDate = loan.expectedReturnDate.split('T')[0]; // Pegar apenas a parte da data
+    return loanDate < today;
+  });
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -233,7 +257,7 @@ function AdminPanel() {
                   {overdueLoans.map(loan => (
                     <li key={loan.id} style={{ marginBottom: '5px' }}>
                       <strong>{loan.collaboratorName}</strong> - {loan.toolNames.join(', ')} 
-                      (venceu em {new Date(loan.expectedReturnDate).toLocaleDateString('pt-BR')})
+                      (venceu em {new Date(loan.expectedReturnDate + 'T00:00:00').toLocaleDateString('pt-BR')})
                     </li>
                   ))}
                 </ul>
@@ -261,22 +285,47 @@ function AdminPanel() {
                         <th>Ferramentas</th>
                         <th>Devolução</th>
                         <th>Status</th>
+                        <th>Ação</th>
                       </tr>
                     </thead>
                     <tbody>
                       {activeLoans.map(loan => {
-                        const isOverdue = new Date(loan.expectedReturnDate) < new Date();
+                        // Comparar apenas datas (sem hora) para evitar problemas de timezone
+                        const loanDate = loan.expectedReturnDate.split('T')[0];
+                        const isOverdue = loanDate < today;
                         return (
                           <tr key={loan.id}>
                             <td style={{ fontWeight: '600' }}>{loan.collaboratorName}</td>
                             <td>{loan.toolNames.join(', ')}</td>
                             <td style={{ color: isOverdue ? '#e53e3e' : '#4a5568' }}>
-                              {new Date(loan.expectedReturnDate).toLocaleDateString('pt-BR')}
+                              {new Date(loan.expectedReturnDate + 'T00:00:00').toLocaleDateString('pt-BR')}
                             </td>
                             <td style={{ textAlign: 'center' }}>
                               <span className={`status-badge ${isOverdue ? 'status-borrowed' : 'status-active'}`}>
                                 {isOverdue ? '🔴' : '🟢'}
                               </span>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
+                                <button
+                                  onClick={() => handleReturnTool(loan.id)}
+                                  className="btn-success"
+                                  style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                  title="Devolver ferramentas"
+                                >
+                                  🔄
+                                </button>
+                                {isOverdue && (
+                                  <button
+                                    onClick={() => handleDeleteLoan(loan)}
+                                    className="btn-danger"
+                                    style={{ padding: '4px 8px', fontSize: '0.65rem' }}
+                                    title="Excluir empréstimo atrasado"
+                                  >
+                                    🗑️
+                                  </button>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         );
@@ -292,9 +341,18 @@ function AdminPanel() {
       case 'collaborators':
         return (
           <div className="fade-in-up">
-            <h3 className="subsection-title">
-              👥 Todos os Colaboradores ({state.collaborators.length})
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 className="subsection-title" style={{ margin: 0 }}>
+                👥 Todos os Colaboradores ({state.collaborators.length})
+              </h3>
+              <button
+                onClick={() => dispatch({ type: 'SET_VIEW', payload: 'register-collaborator' })}
+                className="btn-success"
+                style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+              >
+                ➕ Novo Colaborador
+              </button>
+            </div>
             {state.collaborators.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-icon">👤</div>
@@ -426,9 +484,18 @@ function AdminPanel() {
       case 'tools':
         return (
           <div className="fade-in-up">
-            <h3 className="subsection-title">
-              🔧 Todas as Ferramentas ({state.tools.length})
-            </h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 className="subsection-title" style={{ margin: 0 }}>
+                🔧 Todas as Ferramentas ({state.tools.length})
+              </h3>
+              <button
+                onClick={() => dispatch({ type: 'SET_VIEW', payload: 'register-tool' })}
+                className="btn-success"
+                style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+              >
+                ➕ Nova Ferramenta
+              </button>
+            </div>
             {state.tools.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-icon">🔧</div>
@@ -688,6 +755,38 @@ function AdminPanel() {
         >
           🏠 Voltar ao Início
         </button>
+      </div>
+
+      {/* Rodapé */}
+      <div style={{
+        textAlign: 'center',
+        marginTop: '30px',
+        padding: '20px',
+        color: '#a0aec0',
+        fontSize: '0.8rem',
+        borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
+        <p style={{ margin: '0 0 5px 0' }}>
+          © 2025 - Controle de Ferramentas
+        </p>
+        <p style={{ margin: 0 }}>
+          Criado por{' '}
+          <a 
+            href="https://www.linkedin.com/in/ewertonalexander/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              color: '#667eea',
+              textDecoration: 'none',
+              fontWeight: '600',
+              transition: 'color 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.color = '#5a67d8'}
+            onMouseLeave={(e) => e.target.style.color = '#667eea'}
+          >
+            Ewerton Alexander
+          </a>
+        </p>
       </div>
     </div>
   );

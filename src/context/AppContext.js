@@ -8,6 +8,7 @@ import {
   deleteTool as deleteToolDB,
   addLoan as addLoanDB,
   returnTool as returnToolDB,
+  deleteLoan as deleteLoanDB,
   subscribeToCollaborators,
   subscribeToTools,
   subscribeToLoans
@@ -246,6 +247,18 @@ export function AppProvider({ children }) {
         dispatch({ type: 'SET_LOADING', payload: false });
       } catch (error) {
         dispatch({ type: 'SET_ERROR', payload: 'Erro ao devolver ferramenta' });
+        throw error;
+      }
+    },
+
+    async deleteLoan(loanId) {
+      try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        await deleteLoanDB(loanId);
+        dispatch({ type: 'SET_LOADING', payload: false });
+        return true;
+      } catch (error) {
+        dispatch({ type: 'SET_ERROR', payload: 'Erro ao excluir empréstimo' });
         throw error;
       }
     },

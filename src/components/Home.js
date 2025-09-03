@@ -144,8 +144,26 @@ function Home() {
         <p style={{ margin: 0 }}>
           Sistema desenvolvido para controle profissional de ferramentas
         </p>
-        <p style={{ margin: '5px 0 0 0', fontSize: '0.75rem' }}>
-          © 2024 - Controle de Ferramentas
+        <p style={{ margin: '5px 0', fontSize: '0.75rem' }}>
+          © 2025 - Controle de Ferramentas
+        </p>
+        <p style={{ margin: '10px 0 0 0', fontSize: '0.8rem' }}>
+          Criado por{' '}
+          <a 
+            href="https://www.linkedin.com/in/ewertonalexander/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              color: '#667eea',
+              textDecoration: 'none',
+              fontWeight: '600',
+              transition: 'color 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.target.style.color = '#5a67d8'}
+            onMouseLeave={(e) => e.target.style.color = '#667eea'}
+          >
+            Ewerton Alexander
+          </a>
         </p>
       </div>
 
