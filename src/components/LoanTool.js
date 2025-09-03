@@ -8,13 +8,8 @@ function LoanTool() {
   const [expectedReturnDate, setExpectedReturnDate] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Mostrar todas as ferramentas, com indicação de status
-  const allTools = state.tools.map(tool => {
-    const isCurrentlyBorrowed = state.loans.some(loan => 
-      loan.toolIds && loan.toolIds.some(id => id.toString() === tool.id.toString()) && loan.status === 'active'
-    );
-    return { ...tool, isCurrentlyBorrowed };
-  });
+  // Todas as ferramentas estão sempre disponíveis (múltiplas unidades)
+  const allTools = state.tools;
 
   const handleToolSelection = (toolId) => {
     setSelectedTools(prev => 
@@ -198,17 +193,15 @@ function LoanTool() {
                        type="checkbox"
                        checked={selectedTools.some(id => id.toString() === tool.id.toString())}
                        onChange={() => handleToolSelection(tool.id)}
-                       disabled={submitting || tool.isCurrentlyBorrowed}
+                       disabled={submitting}
                      />
                      <span style={{ 
-                       fontWeight: '500',
-                       opacity: tool.isCurrentlyBorrowed ? 0.6 : 1,
-                       textDecoration: tool.isCurrentlyBorrowed ? 'line-through' : 'none'
+                       fontWeight: '500'
                      }}>
                        {tool.name}
                      </span>
-                     <span className={`status-badge ${tool.isCurrentlyBorrowed ? 'status-borrowed' : 'status-available'}`} style={{ marginLeft: 'auto' }}>
-                       {tool.isCurrentlyBorrowed ? '🔴' : '🟢'}
+                     <span className="status-badge status-available" style={{ marginLeft: 'auto' }}>
+                       🟢
                      </span>
                    </label>
                  ))}

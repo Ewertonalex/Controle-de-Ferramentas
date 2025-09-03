@@ -131,16 +131,7 @@ function AdminPanel() {
   };
 
   const handleDeleteTool = async (tool) => {
-    const isCurrentlyBorrowed = state.loans.some(loan => 
-      loan.toolIds && loan.toolIds.some(id => id.toString() === tool.id.toString()) && loan.status === 'active'
-    );
-    
-    if (isCurrentlyBorrowed) {
-      alert('❌ Não é possível excluir ferramenta que está emprestada');
-      return;
-    }
-    
-    if (window.confirm(`Confirma a exclusão da ferramenta "${tool.name}"?`)) {
+    if (window.confirm(`Confirma a exclusão da ferramenta "${tool.name}"?\n\nAtenção: Isso irá remover a ferramenta permanentemente, mas não afetará empréstimos já registrados.`)) {
       try {
         await actions.deleteTool(tool.id);
         
@@ -326,8 +317,7 @@ function AdminPanel() {
                   <thead>
                     <tr>
                       <th>Ferramenta</th>
-                      <th>Status</th>
-                      <th>Total</th>
+                      <th>Total Usos</th>
                       <th>Último Uso</th>
                       <th>Ações</th>
                     </tr>
@@ -336,9 +326,6 @@ function AdminPanel() {
                     {state.tools.map(tool => {
                       const toolLoans = state.loans.filter(loan => 
                         loan.toolIds && loan.toolIds.some(id => id.toString() === tool.id.toString())
-                      );
-                      const isCurrentlyBorrowed = state.loans.some(loan => 
-                        loan.toolIds && loan.toolIds.some(id => id.toString() === tool.id.toString()) && loan.status === 'active'
                       );
                       const lastLoan = toolLoans.sort((a, b) => new Date(b.loanDate) - new Date(a.loanDate))[0];
                       const isEditing = editingTool === tool.id;
@@ -362,11 +349,6 @@ function AdminPanel() {
                             ) : (
                               tool.name
                             )}
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            <span className={`status-badge ${isCurrentlyBorrowed ? 'status-borrowed' : 'status-available'}`}>
-                              {isCurrentlyBorrowed ? '🔴' : '🟢'}
-                            </span>
                           </td>
                           <td style={{ textAlign: 'center' }}>
                             <span className="status-badge" style={{ backgroundColor: '#007bff', color: 'white' }}>
@@ -424,7 +406,6 @@ function AdminPanel() {
                                   onClick={() => handleDeleteTool(tool)}
                                   className="btn-danger"
                                   style={{ padding: '4px 8px', fontSize: '0.65rem' }}
-                                  disabled={isCurrentlyBorrowed}
                                 >
                                   🗑️
                                 </button>
