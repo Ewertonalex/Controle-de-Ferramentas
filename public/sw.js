@@ -1,4 +1,4 @@
-const CACHE_NAME = 'controle-ferramentas-v1.0.0';
+const CACHE_NAME = 'controle-ferramentas-v1.1.0';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',
